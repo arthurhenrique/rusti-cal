@@ -86,45 +86,27 @@ fn main() {
         println!(" Su Mo Tu We Th Fr Sa");
         for day in 1..months[month] + 1 {
             let day_year = days_by_date(1, month, year, m.clone(), y);
+            let mut spaces:String = "   ".to_string();
+
             if day == 1 && day_year % 7 == 0 {
                 print!("                  ")
             }
-            if day == 1 && day_year % 7 == 2 {
-                print!("   ")
+            for i in 2..6{
+                if day == 1 && day_year % 7 == i {
+                    print!("{}", spaces);
+                }
+                spaces += &"   ".to_string(); // more 3 spaces for each step
             }
-            if day == 1 && day_year % 7 == 3 {
-                print!("      ")
-            }
-            if day == 1 && day_year % 7 == 4 {
-                print!("         ")
-            }
-            if day == 1 && day_year % 7 == 5 {
-                print!("            ")
-            }
-            if day == 1 && day_year % 7 == 6 {
-                print!("               ")
-            }
+            let d = days_by_date(day, month, year, m.clone(), y);
 
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 1 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 2 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 3 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 4 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 5 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 6 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 0 {
+            if d % 7 == 0 {
                 println!("{:3}", day)
+            }
+            for i in 1..7{
+                if d % 7 == i{
+                    print!("{:3}", day);
+                    continue
+                }
             }
         }
     }
