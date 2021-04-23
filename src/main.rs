@@ -54,12 +54,37 @@ fn days_by_date(
     count += day;
 
     if month > 1 {
-        count += months_memoized[month]
+        count += months_memoized[month - 1]
     }
     if year > 1 {
         count += year_memoized
     }
     return count;
+}
+
+fn print_first_day(day_year: u32) {
+    let mut spaces: String = "".to_string();
+
+    if day_year % 7 == 0 {
+        print!("                  ");
+    }
+    for i in 2..7 {
+        spaces += &"   ".to_string();
+        if day_year % 7 == i {
+            print!("{}", spaces);
+        }
+    }
+}
+
+fn print_remain_day(day: u32, day_year: u32) {
+    if day_year % 7 == 0 {
+        println!("{:3}", day)
+    }
+    for i in 1..7 {
+        if day_year % 7 == i {
+            print!("{:3}", day);
+        }
+    }
 }
 
 fn main() {
@@ -77,55 +102,24 @@ fn main() {
         println!("days_by_month: {:?}", months);
         println!("month memoization: {:?}", m);
         println!("year memoization: {}", y);
-        println!("debug: {}", days_by_date(1, 1, 2020, m.clone(), y));
+        println!("debug: {}", days_by_date(29, 2, 2021, m.clone(), y));
+        println!("debug: {}", days_by_date(30, 3, 2021, m.clone(), y));
     }
 
-    print!("        {}       ", year);
+    println!("        {}       ", year);
     for month in 1..13 {
-        println!("\n\n       --{:02}--       ", month);
-        println!(" Su Mo Tu We Th Fr Sa");
+        println!("       --{:02}--       ", month);
+        println!(" Su Mo Tu We Th Fr Sa ");
         for day in 1..months[month] + 1 {
-            let day_year = days_by_date(1, month, year, m.clone(), y);
-            if day == 1 && day_year % 7 == 0 {
-                print!("                  ")
+            // display trough first day
+            if day == 1 {
+                let first_day = days_by_date(1, month, year, m.clone(), y);
+                print_first_day(first_day)
             }
-            if day == 1 && day_year % 7 == 2 {
-                print!("   ")
-            }
-            if day == 1 && day_year % 7 == 3 {
-                print!("      ")
-            }
-            if day == 1 && day_year % 7 == 4 {
-                print!("         ")
-            }
-            if day == 1 && day_year % 7 == 5 {
-                print!("            ")
-            }
-            if day == 1 && day_year % 7 == 6 {
-                print!("               ")
-            }
-
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 1 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 2 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 3 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 4 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 5 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 6 {
-                print!("{:3}", day)
-            }
-            if days_by_date(day, month, year, m.clone(), y) % 7 == 0 {
-                println!("{:3}", day)
-            }
+            // display remain
+            let day_year = days_by_date(day, month, year, m.clone(), y);
+            print_remain_day(day, day_year)
         }
+        println!("\n")
     }
 }
