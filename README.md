@@ -13,3 +13,7 @@ cargo run <year>
 ```
 
 ![usage](./doc/calendar-rust.png)
+
+## todo
+
+- [ ] display months side by side (column 3 row 4 by default)
