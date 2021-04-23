@@ -71,28 +71,29 @@ fn main() {
         println!("debug: {}", days_by_date(1, 1, 2020));
     }
 
+    print!("        {}       ", year);
     for month in 1..13 {
-        println!("\n       --{}--       ", month);
-        println!("Su Mo Tu We Th Fr Sa");
+        println!("\n\n       --{:02}--       ", month);
+        println!(" Su Mo Tu We Th Fr Sa");
         for day in 1..months[month] + 1 {
             let day_year = days_by_date(1, month, year);
+            if day == 1 && day_year % 7 == 0 {
+                print!("                  ")
+            }
             if day == 1 && day_year % 7 == 2 {
-                print!("  ")
+                print!("   ")
             }
             if day == 1 && day_year % 7 == 3 {
-                print!("     ")
+                print!("      ")
             }
             if day == 1 && day_year % 7 == 4 {
-                print!("        ")
+                print!("         ")
             }
             if day == 1 && day_year % 7 == 5 {
-                print!("           ")
+                print!("            ")
             }
             if day == 1 && day_year % 7 == 6 {
-                print!("              ")
-            }
-            if day == 1 && day_year % 7 == 0 {
-                print!("                 ")
+                print!("               ")
             }
 
             if days_by_date(day, month, year) % 7 == 1 {
