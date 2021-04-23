@@ -11,3 +11,5 @@ it's similar to `cal` cli but simpler and uglier.
 ```sh
 cargo run <year>
 ```
+
+![usage](./docs/calendar-rust.png)
