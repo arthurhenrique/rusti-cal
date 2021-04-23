@@ -12,4 +12,4 @@ it's similar to `cal` cli but simpler and uglier.
 cargo run <year>
 ```
 
-![usage](./docs/calendar-rust.png)
+![usage](./doc/calendar-rust.png)
