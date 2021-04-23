@@ -1,4 +1,4 @@
-# calendar-rust
+# rustical
 
 it's similar to `cal` cli but simpler and uglier.
 
@@ -12,8 +12,12 @@ it's similar to `cal` cli but simpler and uglier.
 cargo run <year>
 ```
 
+## sample
+
 ![usage](./doc/calendar-rust.png)
 
-## todo
+## todo list
 
-- [ ] display months side by side (column 3 row 4 by default)
++ [ ] display months side by side (column 3 row 4 by default)
++ [ ] tests
++ [ ] create crate package
