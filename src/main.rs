@@ -4,7 +4,7 @@ pub(crate) const REFORM_YEAR:u32 = 1099;
 
 fn is_leap_year(year:u32) -> bool{
     if year <= REFORM_YEAR {
-        return !year % 4 == 0;
+        return year % 4 == 0;
     }
     return (year % 4 == 0) ^ (year % 100 == 0) ^ (year % 400 == 0);
 }
@@ -20,13 +20,13 @@ fn get_days(year:u32) -> Vec<u32>{
 fn days_by_month(year:u32) -> Vec<u32>{
     let mut count = 0;
     let days: Vec<u32> = get_days(year);
-    let mut vec = Vec::new();
+    let mut result = Vec::new();
 
-    for i in 1..13{
+    for i in 0..13{
         count += days[i];
-        vec.push(count);
+        result.push(count);
     }
-    return vec
+    return result
 }
 
 fn days_by_year(mut year:u32) -> u32{
@@ -61,58 +61,61 @@ fn days_by_date(day:u32, month:usize, year:u32) -> u32 {
 fn main() {
     let args: Vec<String> = env::args().collect();
     let year = args[1].parse::<u32>().unwrap();
+    let months = get_days(year);
 
-    let months = days_by_month(year);
-
-    println!("year: {}", year);
-    println!("months: {:?}", get_days(year));
-    println!("days_by_month: {:?}", months);
-    println!("days_by_year: {}", days_by_year(year));
+    let debug :bool = false;
+    if debug{
+        println!("year: {}", year);
+        println!("months: {:?}", get_days(year));
+        println!("days_by_month: {:?}", months);
+        println!("days_by_year: {}", days_by_year(year));
+        println!("debug: {}", days_by_date(1, 1,2020));
+    }
 
     for month in 1..13{
-        println!("       --{}--       ", month);
-        println!("s  m  t  w  t  f  s");
+        println!("\n       --{}--       ", month);
+        println!("Su Mo Tu We Th Fr Sa");
         for day in 1..months[month] + 1 {
             let day_year = days_by_date(1, month, year);
             if day == 1 && day_year % 7 == 2{
-                print!("   ")
+                print!("  ")
             }
             if day == 1 && day_year % 7 == 3{
-                print!("      ")
+                print!("     ")
             }
             if day == 1 && day_year % 7 == 4{
-                print!("         ")
+                print!("        ")
             }
             if day == 1 && day_year % 7 == 5{
-                print!("            ")
+                print!("           ")
             }
             if day == 1 && day_year % 7 == 6{
-                print!("               ")
+                print!("              ")
             }
             if day == 1 && day_year % 7 == 0{
-                print!("                  ")
+                print!("                 ")
             }
 
             if days_by_date(day,month,year)%7==1{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==2{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==3{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==4{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==5{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==6{
-                print!("{}", day)
+                print!("{:3}", day)
             }
             if days_by_date(day,month,year)%7==0{
-                print!("{}", day)
+                println!("{:3}", day)
             }
         }
     }
