@@ -1,4 +1,4 @@
-# calendar-rust
+# rustical
 
 it's similar to `cal` cli but simpler and uglier.
 
