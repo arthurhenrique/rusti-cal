@@ -95,17 +95,6 @@ fn main() {
     let m = days_by_month(year);
     let y = days_by_year(year);
 
-    let debug: bool = false;
-    if debug {
-        println!("year: {}", year);
-        println!("months: {:?}", get_days(year));
-        println!("days_by_month: {:?}", months);
-        println!("month memoization: {:?}", m);
-        println!("year memoization: {}", y);
-        println!("debug: {}", days_by_date(29, 2, 2021, m.clone(), y));
-        println!("debug: {}", days_by_date(30, 3, 2021, m.clone(), y));
-    }
-
     println!("        {}", year);
     for month in 1..13 {
         println!("       --{:02}--", month);
