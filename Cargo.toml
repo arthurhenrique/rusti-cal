@@ -1,11 +1,11 @@
 [package]
-name = "rustical"
+name = "rusti-cal"
 version = "0.1.0"
 authors = ["Arthur Henrique <arthur393@gmail.com>"]
 edition = "2018"
 description = "⚡️ Lightning-fast and minimal calendar command line. It's similar to `cal` but simpler and uglier. Written in Rust 🦀"
 readme = "README.md"
-repository = "https://github.com/arthurhenrique/rustical"
+repository = "https://github.com/arthurhenrique/rusti-cal"
 license-file = "LICENSE"
 keywords = ["calendar", "cal"]
 categories = ["command-line-utilities"]
