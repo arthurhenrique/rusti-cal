@@ -1,23 +1,20 @@
 # rustical
 
-it's similar to `cal` cli but simpler and uglier.
+⚡️ Lightning-fast and minimal calendar command line. It's similar to `cal`.
+Written in Rust 🦀
 
-## dependencies
-
-+ rust
-
-## usage
+## How Can Install?
 
 ```sh
-cargo run <year>
+$ cargo install rustical
 ```
 
-## sample
+## Usage
 
-![usage](./doc/calendar-rust.png)
+```sh
+$ rustical <year>
+```
 
-## todo list
+## Hands On
 
-+ [ ] display months side by side (column 3 row 4 by default)
-+ [ ] tests
-+ [ ] create crate package
+![hands-on](./doc/rustical.gif)

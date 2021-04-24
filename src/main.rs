@@ -106,10 +106,10 @@ fn main() {
         println!("debug: {}", days_by_date(30, 3, 2021, m.clone(), y));
     }
 
-    println!("        {}       ", year);
+    println!("        {}", year);
     for month in 1..13 {
-        println!("       --{:02}--       ", month);
-        println!(" Su Mo Tu We Th Fr Sa ");
+        println!("       --{:02}--", month);
+        println!(" Su Mo Tu We Th Fr Sa");
         for day in 1..months[month] + 1 {
             // display trough first day
             if day == 1 {
