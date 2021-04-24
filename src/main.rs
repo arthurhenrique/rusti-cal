@@ -62,29 +62,36 @@ fn days_by_date(
     return count;
 }
 
-fn print_first_day(day_year: u32) {
+fn print_first_day(day_year: u32) -> String {
     let mut spaces: String = "".to_string();
+    let mut printable = format!("");
 
     if day_year % 7 == 0 {
-        print!("                  ");
+        printable += &format!("                  ");
     }
     for i in 2..7 {
         spaces += &"   ".to_string();
         if day_year % 7 == i {
-            print!("{}", spaces);
+            printable += &format!("{}", spaces);
         }
     }
+
+    return printable;
 }
 
-fn print_remain_day(day: u32, day_year: u32) {
+fn print_remain_day(day: u32, day_year: u32) -> String {
+    let mut printable = format!("");
+
     if day_year % 7 == 0 {
-        println!("{:3}", day)
+        printable += &format!("{:3}\n", day)
     }
     for i in 1..7 {
         if day_year % 7 == i {
-            print!("{:3}", day);
+            printable += &format!("{:3}", day);
         }
     }
+
+    return printable;
 }
 
 fn main() {
@@ -95,20 +102,24 @@ fn main() {
     let m = days_by_month(year);
     let y = days_by_year(year);
 
-    println!("        {}", year);
+    println!("         {}", year);
+    let mut month_printable = format!("");
     for month in 1..13 {
-        println!("       --{:02}--", month);
-        println!(" Su Mo Tu We Th Fr Sa");
+        month_printable += &format!("        --{:02}--\n", month);
+        month_printable += &format!(" Su Mo Tu We Th Fr Sa\n");
+
         for day in 1..months[month] + 1 {
             // display trough first day
             if day == 1 {
                 let first_day = days_by_date(1, month, year, m.clone(), y);
-                print_first_day(first_day)
+                month_printable += &print_first_day(first_day)
             }
             // display remain
             let day_year = days_by_date(day, month, year, m.clone(), y);
-            print_remain_day(day, day_year)
+            month_printable += &print_remain_day(day, day_year)
         }
+        print!("{}", month_printable);
+        month_printable = (&"").to_string();
         println!("\n")
     }
 }
