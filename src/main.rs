@@ -99,27 +99,43 @@ fn main() {
     let year = args[1].parse::<u32>().unwrap();
     let months = get_days(year);
 
+    // data memoized
     let m = days_by_month(year);
     let y = days_by_year(year);
 
+    // row x column controller
+    let width = 3;
+    let height = 4;
+    let mut rows: Vec<Vec<String>> = vec![vec![String::from(""); width]; height];
+    let mut row_counter = 0;
+    let mut mod_idx;
+
+    // display
     println!("         {}", year);
     let mut month_printable = format!("");
     for month in 1..13 {
-        month_printable += &format!("        --{:02}--\n", month);
+        month_printable += &format!("\n        --{:02}--\n", month);
         month_printable += &format!(" Su Mo Tu We Th Fr Sa\n");
-
         for day in 1..months[month] + 1 {
-            // display trough first day
             if day == 1 {
                 let first_day = days_by_date(1, month, year, m.clone(), y);
                 month_printable += &print_first_day(first_day)
             }
-            // display remain
             let day_year = days_by_date(day, month, year, m.clone(), y);
             month_printable += &print_remain_day(day, day_year)
         }
-        print!("{}", month_printable);
+
+        mod_idx = (month - 1) % 3;
+        rows[row_counter][mod_idx] = month_printable;
+        if month % 3 == 0 {
+            row_counter += 1;
+        }
         month_printable = (&"").to_string();
-        println!("\n")
+    }
+
+    for row in rows {
+        for column in row {
+            print!("{}", column)
+        }
     }
 }
