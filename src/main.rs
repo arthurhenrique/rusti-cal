@@ -1,6 +1,9 @@
 use std::env;
 
 pub(crate) const REFORM_YEAR: u32 = 1099;
+pub(crate) const COLUMN: usize = 3;
+pub(crate) const ROWS: usize = 4;
+static REPLACE_TOKEN: &'static str = "\n";
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -17,7 +20,7 @@ fn get_days(year: u32) -> Vec<u32> {
     return vec![0, 31, feb_day, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 }
 
-fn days_by_month(year: u32) -> Vec<u32> {
+fn days_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
     let mut count = 0;
     let days: Vec<u32> = get_days(year);
     let mut result = Vec::new();
@@ -26,7 +29,7 @@ fn days_by_month(year: u32) -> Vec<u32> {
         count += days[i];
         result.push(count);
     }
-    return result;
+    return (result, days);
 }
 
 fn days_by_year(mut year: u32) -> u32 {
@@ -83,7 +86,7 @@ fn print_remain_day(day: u32, day_year: u32) -> String {
     let mut printable = format!("");
 
     if day_year % 7 == 0 {
-        printable += &format!("{:3}\n", day)
+        printable += &format!("{:3}{}", day, REPLACE_TOKEN)
     }
     for i in 1..7 {
         if day_year % 7 == i {
@@ -94,48 +97,52 @@ fn print_remain_day(day: u32, day_year: u32) -> String {
     return printable;
 }
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    let year = args[1].parse::<u32>().unwrap();
-    let months = get_days(year);
-
-    // data memoized
-    let m = days_by_month(year);
-    let y = days_by_year(year);
-
-    // row x column controller
-    let width = 3;
-    let height = 4;
+fn calendar(year: u32, months: Vec<u32>, memoized_month: Vec<u32>, memoized_year: u32) -> Vec<Vec<String>> {
+    let width = COLUMN;
+    let height = ROWS;
     let mut rows: Vec<Vec<String>> = vec![vec![String::from(""); width]; height];
-    let mut row_counter = 0;
-    let mut mod_idx;
 
-    // display
-    println!("         {}", year);
+    let mut row_counter = 0;
     let mut month_printable = format!("");
+
     for month in 1..13 {
-        month_printable += &format!("\n        --{:02}--\n", month);
-        month_printable += &format!(" Su Mo Tu We Th Fr Sa\n");
+        month_printable += &format!("        --{:02}--        {}", month, REPLACE_TOKEN);
+        month_printable += &format!(" Su Mo Tu We Th Fr Sa{}", REPLACE_TOKEN);
         for day in 1..months[month] + 1 {
             if day == 1 {
-                let first_day = days_by_date(1, month, year, m.clone(), y);
+                let first_day = days_by_date(1, month, year, memoized_month.clone(), memoized_year);
                 month_printable += &print_first_day(first_day)
             }
-            let day_year = days_by_date(day, month, year, m.clone(), y);
+            let day_year = days_by_date(day, month, year, memoized_month.clone(), memoized_year);
             month_printable += &print_remain_day(day, day_year)
         }
-
-        mod_idx = (month - 1) % 3;
-        rows[row_counter][mod_idx] = month_printable;
-        if month % 3 == 0 {
+        // columns splited
+        rows[row_counter][(month - 1) % COLUMN] = month_printable;
+        if month % COLUMN == 0 {
             row_counter += 1;
         }
         month_printable = (&"").to_string();
     }
 
+    return rows;
+}
+
+fn display(year: u32, rows: Vec<Vec<String>>) {
+    println!("         {}         ", year);
     for row in rows {
         for column in row {
-            print!("{}", column)
+            println!("{}", column)
         }
     }
+}
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let year = args[1].parse::<u32>().unwrap();
+
+    let (memoized_month, months) = days_by_month(year);
+    let memoized_year = days_by_year(year);
+    let rows = calendar(year, months,  memoized_month, memoized_year);
+
+    display(year, rows)
 }
