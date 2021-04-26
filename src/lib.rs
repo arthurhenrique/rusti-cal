@@ -1,11 +1,11 @@
-pub(crate) const REFORM_YEAR: u32 = 1099;
-pub(crate) const MONTHS: usize = 12;
-pub(crate) const WEEKDAYS: u32 = 7;
+const REFORM_YEAR: u32 = 1099;
+const MONTHS: usize = 12;
+const WEEKDAYS: u32 = 7;
 
-pub(crate) const COLUMN: usize = 3;
-pub(crate) const ROWS: usize = 4;
+const COLUMN: usize = 3;
+const ROWS: usize = 4;
 
-static TOKEN: &'static str = "\n";
+static TOKEN: &'static str = "";
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -58,14 +58,14 @@ fn days_by_date(
 
 fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
     let mut count = 0;
-    let mut acc = Vec::new();
+    let mut accum = Vec::new();
     let days: Vec<u32> = days_by_month(year);
 
     (0..MONTHS + 1).for_each(|i| {
         count += days[i];
-        acc.push(count);
+        accum.push(count);
     });
-    (acc, days)
+    (accum, days)
 }
 
 fn first_day_printable(day_year: u32) -> String {
@@ -73,12 +73,12 @@ fn first_day_printable(day_year: u32) -> String {
     let mut printable = format!("");
 
     if day_year % WEEKDAYS == 0 {
-        printable += &format!("                  ");
+        printable.push_str(&format!("                  "));
     }
     (2..WEEKDAYS).for_each(|i| {
         spaces += &"   ".to_string();
         if day_year % WEEKDAYS == i {
-            printable += &format!("{}", spaces);
+            printable.push_str(&format!("{}", spaces));
         }
     });
     printable
@@ -88,11 +88,11 @@ fn remain_day_printable(day: u32, day_year: u32) -> String {
     let mut printable = format!("");
 
     if day_year % WEEKDAYS == 0 {
-        printable += &format!("{:3}{}", day, TOKEN)
+        printable.push_str(&format!("{:3}{}", day, TOKEN))
     }
     (1..WEEKDAYS).for_each(|i| {
         if day_year % WEEKDAYS == i {
-            printable += &format!("{:3}", day);
+            printable.push_str(&format!("{:3}", day));
         }
     });
     printable
@@ -104,38 +104,38 @@ fn month_printable(
     days: u32,
     months_memoized: Vec<u32>,
     year_memoized: u32,
-) -> String {
-    let mut result = format!("");
-
-    result += &format!("        --{:02}--        {}", month, TOKEN);
-    result += &format!(" Su Mo Tu We Th Fr Sa{}", TOKEN);
+) -> Vec<String> {
+    let mut result = Vec::<String>::new();
+    result.push(format!("        --{:02}--        {}", month, TOKEN));
+    result.push(format!(" Su Mo Tu We Th Fr Sa{}", TOKEN));
 
     (1..days + 1).for_each(|day| {
         if day == 1 {
             let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
-            result += &first_day_printable(first_day)
+            result.push(first_day_printable(first_day))
         }
         let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
-        result += &remain_day_printable(day, day_year)
+        result.push(remain_day_printable(day, day_year))
     });
     result
 }
 
-pub fn calendar(year: u32) -> Vec<Vec<String>> {
-    let mut rows: Vec<Vec<String>> = vec![vec![String::from(""); COLUMN]; ROWS];
+pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
+    let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
     let mut row_counter = 0;
 
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
 
     (1..MONTHS + 1).for_each(|month| {
-        rows[row_counter][(month - 1) % COLUMN] = month_printable(
+        let result = month_printable(
             year,
             month,
             months[month],
             months_memoized.clone(),
-            year_memoized,
+            year_memoized.clone(),
         );
+        rows[row_counter][(month - 1) % COLUMN] = result.clone();
 
         // columns splited
         if month % COLUMN == 0 {
@@ -145,9 +145,11 @@ pub fn calendar(year: u32) -> Vec<Vec<String>> {
     rows
 }
 
-pub fn display(year: u32, rows: Vec<Vec<String>>) {
+pub fn display(year: u32, rows: Vec<Vec<Vec<String>>>) {
     println!("         {}         ", year);
-    rows.into_iter().for_each(|row| {
-        row.into_iter().for_each(|column| println!("{}", column));
-    });
+    for row in rows {
+        for column in row {
+            println!("{:?}", column)
+        }
+    }
 }
