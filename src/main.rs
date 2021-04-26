@@ -63,10 +63,10 @@ fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
     let mut acc = Vec::new();
     let days: Vec<u32> = days_by_month(year);
 
-    for i in 0..MONTHS + 1 {
+    (0..MONTHS + 1).for_each(|i| {
         count += days[i];
         acc.push(count);
-    }
+    });
     return (acc, days);
 }
 
@@ -77,12 +77,12 @@ fn first_day_printable(day_year: u32) -> String {
     if day_year % WEEKDAYS == 0 {
         printable += &format!("                  ");
     }
-    for i in 2..WEEKDAYS {
+    (2..WEEKDAYS).for_each(|i| {
         spaces += &"   ".to_string();
         if day_year % WEEKDAYS == i {
             printable += &format!("{}", spaces);
         }
-    }
+    });
     return printable;
 }
 
@@ -92,18 +92,18 @@ fn remain_day_printable(day: u32, day_year: u32) -> String {
     if day_year % WEEKDAYS == 0 {
         printable += &format!("{:3}{}", day, TOKEN)
     }
-    for i in 1..WEEKDAYS {
+    (1..WEEKDAYS).for_each(|i| {
         if day_year % WEEKDAYS == i {
             printable += &format!("{:3}", day);
         }
-    }
+    });
     return printable;
 }
 
 fn month_printable(
     year: u32,
     month: usize,
-    months: Vec<u32>,
+    days: u32,
     months_memoized: Vec<u32>,
     year_memoized: u32,
 ) -> String {
@@ -112,14 +112,14 @@ fn month_printable(
     result += &format!("        --{:02}--        {}", month, TOKEN);
     result += &format!(" Su Mo Tu We Th Fr Sa{}", TOKEN);
 
-    for day in 1..months[month] + 1 {
+    (1..days + 1).for_each(|day| {
         if day == 1 {
             let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
             result += &first_day_printable(first_day)
         }
         let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
         result += &remain_day_printable(day, day_year)
-    }
+    });
     return result;
 }
 
@@ -130,30 +130,28 @@ fn calendar(year: u32) -> Vec<Vec<String>> {
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
 
-    for month in 1..MONTHS + 1 {
-        // columns splited
+    (1..MONTHS + 1).for_each(|month| {
         rows[row_counter][(month - 1) % COLUMN] = month_printable(
             year,
             month,
-            months.clone(),
+            months[month],
             months_memoized.clone(),
             year_memoized,
         );
 
+        // columns splited
         if month % COLUMN == 0 {
             row_counter += 1;
         }
-    }
+    });
     return rows;
 }
 
 fn display(year: u32, rows: Vec<Vec<String>>) {
     println!("         {}         ", year);
-    for row in rows {
-        for column in row {
-            println!("{}", column)
-        }
-    }
+    rows.into_iter().for_each(|row| {
+        row.into_iter().for_each(|column| println!("{}", column));
+    });
 }
 
 fn main() {
