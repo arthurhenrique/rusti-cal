@@ -5,7 +5,7 @@ const WEEKDAYS: u32 = 7;
 const COLUMN: usize = 3;
 const ROWS: usize = 4;
 
-static TOKEN: &'static str = "";
+static TOKEN: &'static str = "\n";
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -75,12 +75,12 @@ fn first_day_printable(day_year: u32) -> String {
     if day_year % WEEKDAYS == 0 {
         printable.push_str(&format!("                  "));
     }
-    (2..WEEKDAYS).for_each(|i| {
+    for i in 2..WEEKDAYS {
         spaces += &"   ".to_string();
         if day_year % WEEKDAYS == i {
             printable.push_str(&format!("{}", spaces));
         }
-    });
+    }
     printable
 }
 
@@ -90,12 +90,40 @@ fn remain_day_printable(day: u32, day_year: u32) -> String {
     if day_year % WEEKDAYS == 0 {
         printable.push_str(&format!("{:3}{}", day, TOKEN))
     }
-    (1..WEEKDAYS).for_each(|i| {
+    for i in 1..WEEKDAYS {
         if day_year % WEEKDAYS == i {
             printable.push_str(&format!("{:3}", day));
+            break;
         }
-    });
+    }
     printable
+}
+
+fn body_printable(
+    year: u32,
+    month: usize,
+    days: u32,
+    months_memoized: Vec<u32>,
+    year_memoized: u32,
+) -> Vec<String> {
+    let mut result = Vec::<String>::new();
+    let mut result_days = format!("");
+
+    (1..days + 1).for_each(|day| {
+        if day == 1 {
+            let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
+            result.push(first_day_printable(first_day))
+        }
+        let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
+        result_days.push_str(&remain_day_printable(day, day_year))
+    });
+
+    result_days
+        .split(TOKEN)
+        .collect::<Vec<&str>>()
+        .into_iter()
+        .for_each(|i| result.push(i.to_string()));
+    result
 }
 
 fn month_printable(
@@ -106,17 +134,15 @@ fn month_printable(
     year_memoized: u32,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
-    result.push(format!("        --{:02}--        {}", month, TOKEN));
-    result.push(format!(" Su Mo Tu We Th Fr Sa{}", TOKEN));
+    // header
+    result.push(format!("        --{:02}--        ", month));
+    result.push(format!(" Su Mo Tu We Th Fr Sa"));
 
-    (1..days + 1).for_each(|day| {
-        if day == 1 {
-            let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
-            result.push(first_day_printable(first_day))
-        }
-        let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
-        result.push(remain_day_printable(day, day_year))
-    });
+    // body
+    let body = body_printable(year, month, days, months_memoized, year_memoized);
+    for item in body {
+        result.push(item.to_string());
+    }
     result
 }
 
@@ -136,7 +162,6 @@ pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
             year_memoized.clone(),
         );
         rows[row_counter][(month - 1) % COLUMN] = result.clone();
-
         // columns splited
         if month % COLUMN == 0 {
             row_counter += 1;
