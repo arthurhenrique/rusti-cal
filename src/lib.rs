@@ -79,6 +79,7 @@ fn first_day_printable(day_year: u32) -> String {
         spaces += &"   ".to_string();
         if day_year % WEEKDAYS == i {
             printable.push_str(&format!("{}", spaces));
+            break;
         }
     }
     printable
@@ -112,7 +113,7 @@ fn body_printable(
     (1..days + 1).for_each(|day| {
         if day == 1 {
             let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
-            result.push(first_day_printable(first_day))
+            result_days.push_str(&first_day_printable(first_day))
         }
         let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
         result_days.push_str(&remain_day_printable(day, day_year))
@@ -174,7 +175,9 @@ pub fn display(year: u32, rows: Vec<Vec<Vec<String>>>) {
     println!("         {}         ", year);
     for row in rows {
         for column in row {
-            println!("{:?}", column)
+            for item in column {
+                println!("{}", item)
+            }
         }
     }
 }
