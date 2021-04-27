@@ -110,6 +110,7 @@ fn body_printable(
     let mut result = Vec::<String>::new();
     let mut result_days = format!("");
 
+    // display month formatted
     (1..days + 1).for_each(|day| {
         if day == 1 {
             let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
@@ -119,11 +120,24 @@ fn body_printable(
         result_days.push_str(&remain_day_printable(day, day_year))
     });
 
+    // lines splitted by '\n' TOKEN
     result_days
         .split(TOKEN)
         .collect::<Vec<&str>>()
         .into_iter()
         .for_each(|i| result.push(i.to_string()));
+
+    // all body should have at least 6 lines
+    let len = result.len();
+    if len <= 6 {
+        let spaces = 21 - result[len - 1].len();
+        if result[len - 1].len() < 20 {
+            for _i in 0..spaces {
+                result[len - 1] += " "
+            }
+        }
+        result.push("                     ".to_string())
+    }
     result
 }
 
@@ -135,36 +149,33 @@ fn month_printable(
     year_memoized: u32,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
-    // header
+    let body = body_printable(year, month, days, months_memoized, year_memoized);
+
     result.push(format!("        --{:02}--        ", month));
     result.push(format!(" Su Mo Tu We Th Fr Sa"));
-
-    // body
-    let body = body_printable(year, month, days, months_memoized, year_memoized);
-    for item in body {
+    body.into_iter().for_each(|item| {
         result.push(item.to_string());
-    }
+    });
     result
 }
 
 pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
     let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
     let mut row_counter = 0;
-
+    let mut column_counter = 0;
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
 
     (1..MONTHS + 1).for_each(|month| {
-        let result = month_printable(
+        rows[row_counter][column_counter] = month_printable(
             year,
             month,
             months[month],
             months_memoized.clone(),
             year_memoized.clone(),
         );
-        rows[row_counter][(month - 1) % COLUMN] = result.clone();
-        // columns splited
-        if month % COLUMN == 0 {
+        column_counter = month % COLUMN;
+        if column_counter == 0 {
             row_counter += 1;
         }
     });
@@ -172,12 +183,13 @@ pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
 }
 
 pub fn display(year: u32, rows: Vec<Vec<Vec<String>>>) {
-    println!("         {}         ", year);
+    println!("                                {}", year);
     for row in rows {
-        for column in row {
-            for item in column {
-                println!("{}", item)
+        for i in 0..8 {
+            for j in 0..3 {
+                print!("{} ", &row[j][i]);
             }
+            println!();
         }
     }
 }
