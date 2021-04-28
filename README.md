@@ -22,4 +22,4 @@ $ rusti-cal <year>
 
 ## Hands On
 
-![hands-on](./doc/rusti-cal-bat.gif)
+![hands-on](./doc/rusti-cal.gif)
