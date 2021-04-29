@@ -11,4 +11,4 @@ keywords = ["calendar", "cal"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-argh = "*"
+argh = "0.1.4"
