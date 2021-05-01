@@ -68,16 +68,16 @@ fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
     (accum, days)
 }
 
-fn first_day_printable(day_year: u32) -> String {
+fn first_day_printable(day_year: u32, starting_day: u32) -> String {
     let mut spaces: String = "".to_string();
     let mut printable = format!("");
 
-    if day_year % WEEKDAYS == 0 {
+    if (day_year - starting_day) % WEEKDAYS == 0 {
         printable.push_str(&format!("                  "));
     }
     for i in 2..WEEKDAYS {
         spaces += &"   ".to_string();
-        if day_year % WEEKDAYS == i {
+        if (day_year - starting_day) % WEEKDAYS == i {
             printable.push_str(&format!("{}", spaces));
             break;
         }
@@ -85,14 +85,14 @@ fn first_day_printable(day_year: u32) -> String {
     printable
 }
 
-fn remain_day_printable(day: u32, day_year: u32) -> String {
+fn remain_day_printable(day: u32, day_year: u32, starting_day: u32) -> String {
     let mut printable = format!("");
 
-    if day_year % WEEKDAYS == 0 {
+    if (day_year - starting_day) % WEEKDAYS == 0 {
         printable.push_str(&format!("{:3}{}", day, TOKEN))
     }
     for i in 1..WEEKDAYS {
-        if day_year % WEEKDAYS == i {
+        if (day_year - starting_day) % WEEKDAYS == i {
             printable.push_str(&format!("{:3}", day));
             break;
         }
@@ -106,6 +106,7 @@ fn body_printable(
     days: u32,
     months_memoized: Vec<u32>,
     year_memoized: u32,
+    starting_day: u32,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
     let mut result_days = format!("");
@@ -114,10 +115,10 @@ fn body_printable(
     (1..days + 1).for_each(|day| {
         if day == 1 {
             let first_day = days_by_date(1, month, year, months_memoized.clone(), year_memoized);
-            result_days.push_str(&first_day_printable(first_day))
+            result_days.push_str(&first_day_printable(first_day, starting_day))
         }
         let day_year = days_by_date(day, month, year, months_memoized.clone(), year_memoized);
-        result_days.push_str(&remain_day_printable(day, day_year))
+        result_days.push_str(&remain_day_printable(day, day_year, starting_day))
     });
 
     // lines splitted by '\n' TOKEN
@@ -147,19 +148,44 @@ fn month_printable(
     days: u32,
     months_memoized: Vec<u32>,
     year_memoized: u32,
+    starting_day: u32,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
-    let body = body_printable(year, month, days, months_memoized, year_memoized);
-
+    let body = body_printable(
+        year,
+        month,
+        days,
+        months_memoized,
+        year_memoized,
+        starting_day,
+    );
     result.push(format!("        --{:02}--        ", month));
-    result.push(format!(" Su Mo Tu We Th Fr Sa"));
+    let week_name = vec!["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    let header = circular_week_name(week_name, starting_day as usize);
+    result.push(header);
+
     body.into_iter().for_each(|item| {
         result.push(item.to_string());
     });
     result
 }
 
-pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
+fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
+    let mut s = format!(" ");
+    let mut i = idx;
+
+    while i < 7 + idx {
+        if i == 6 + idx {
+            s.push_str(&format!("{}", week_name[i % 7]));
+        } else {
+            s.push_str(&format!("{} ", week_name[i % 7]));
+        }
+        i += 1
+    }
+    s.to_string()
+}
+
+pub fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
     let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
     let mut row_counter = 0;
     let mut column_counter = 0;
@@ -173,6 +199,7 @@ pub fn calendar(year: u32) -> Vec<Vec<Vec<String>>> {
             months[month],
             months_memoized.clone(),
             year_memoized.clone(),
+            starting_day,
         );
         column_counter = month % COLUMN;
         if column_counter == 0 {
