@@ -1,85 +1,19 @@
-const REFORM_YEAR: u32 = 1099;
-const MONTHS: usize = 12;
-const WEEKDAYS: u32 = 7;
 
-const COLUMN: usize = 3;
-const ROWS: usize = 4;
 
-static TOKEN: &'static str = "\n";
-const MONTH_NAMES: [&'static str; 12] = [
-    "       January       ",
-    "       February       ",
-    "       March       ",
-    "        April       ",
-    "          May       ",
-    "          June       ",
-    "        July       ",
-    "         August       ",
-    "       September       ",
-    "       October       ",
-    "       November       ",
-    "       December       ",
-];
 
-fn is_leap_year(year: u32) -> bool {
-    if year <= REFORM_YEAR {
-        return year % 4 == 0;
-    }
-    (year % 4 == 0) ^ (year % 100 == 0) ^ (year % 400 == 0)
-}
+fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
+    let mut s = format!(" ");
+    let mut i = idx;
 
-fn days_by_year(mut year: u32) -> u32 {
-    let mut count: u32 = 0;
-
-    while year > 1 {
-        year -= 1;
-        if is_leap_year(year) {
-            count += 366
+    while i < 7 + idx {
+        if i == 6 + idx {
+            s.push_str(&format!("{}", week_name[i % 7]));
         } else {
-            count += 365
+            s.push_str(&format!("{} ", week_name[i % 7]));
         }
+        i += 1
     }
-    count
-}
-
-fn days_by_month(year: u32) -> Vec<u32> {
-    let mut feb_day: u32 = 28;
-
-    if is_leap_year(year) {
-        feb_day = 29;
-    }
-    vec![0, 31, feb_day, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-}
-
-fn days_by_date(
-    day: u32,
-    month: usize,
-    year: u32,
-    months_memoized: Vec<u32>,
-    year_memoized: u32,
-) -> u32 {
-    let mut count = 0;
-
-    count += day;
-    if month > 1 {
-        count += months_memoized[month - 1]
-    }
-    if year > 1 {
-        count += year_memoized
-    }
-    count
-}
-
-fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
-    let mut count = 0;
-    let mut accum = Vec::new();
-    let days: Vec<u32> = days_by_month(year);
-
-    (0..MONTHS + 1).for_each(|i| {
-        count += days[i];
-        accum.push(count);
-    });
-    (accum, days)
+    s.to_string()
 }
 
 fn first_day_printable(day_year: u32, starting_day: u32) -> String {
@@ -174,7 +108,7 @@ fn month_printable(
         starting_day,
     );
     result.push(format!("{}", MONTH_NAMES[month - 1]));
-    let week_name = vec!["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    
     let header = circular_week_name(week_name, starting_day as usize);
     result.push(header);
 
@@ -184,46 +118,7 @@ fn month_printable(
     result
 }
 
-fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
-    let mut s = format!(" ");
-    let mut i = idx;
-
-    while i < 7 + idx {
-        if i == 6 + idx {
-            s.push_str(&format!("{}", week_name[i % 7]));
-        } else {
-            s.push_str(&format!("{} ", week_name[i % 7]));
-        }
-        i += 1
-    }
-    s.to_string()
-}
-
-pub fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
-    let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
-    let mut row_counter = 0;
-    let mut column_counter = 0;
-    let (months_memoized, months) = get_days_accumulated_by_month(year);
-    let year_memoized = days_by_year(year);
-
-    (1..MONTHS + 1).for_each(|month| {
-        rows[row_counter][column_counter] = month_printable(
-            year,
-            month,
-            months[month],
-            months_memoized.clone(),
-            year_memoized.clone(),
-            starting_day,
-        );
-        column_counter = month % COLUMN;
-        if column_counter == 0 {
-            row_counter += 1;
-        }
-    });
-    rows
-}
-
-pub fn display(year: u32, rows: Vec<Vec<Vec<String>>>) {
+fn print_row_columns(year: u32, rows: Vec<Vec<Vec<String>>>) {
     println!("                                {}", year);
     for row in rows {
         for i in 0..8 {
