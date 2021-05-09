@@ -1,6 +1,3 @@
-
-
-
 fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
     let mut s = format!(" ");
     let mut i = idx;
@@ -108,7 +105,7 @@ fn month_printable(
         starting_day,
     );
     result.push(format!("{}", MONTH_NAMES[month - 1]));
-    
+
     let header = circular_week_name(week_name, starting_day as usize);
     result.push(header);
 

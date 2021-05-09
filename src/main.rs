@@ -1,6 +1,5 @@
 use argh::FromArgs;
-mod accumulator;
-mod calendar;
+mod lib;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
@@ -15,5 +14,5 @@ struct WithPositional {
 
 fn main() {
     let arg: WithPositional = argh::from_env();
-    calendar::display(arg.year, arg.starting_day)
+    lib::display(arg.year, arg.starting_day)
 }

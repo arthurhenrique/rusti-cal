@@ -1,11 +1,30 @@
 
+mod accum;
+mod consts;
+use io;
 
-fn is_leap_year(year: u32) -> bool {
-    if year <= REFORM_YEAR {
-        return year % 4 == 0;
-    }
-    (year % 4 == 0) ^ (year % 100 == 0) ^ (year % 400 == 0)
+
+struct Date{
+    year: u32,
+    is_leap_year: bool
 }
+
+impl Date {
+    pub fn new(year: u32) -> Self {
+        Self {
+            year: year,
+            is_leap_year: is_leap_year(Self),
+        }
+    }
+
+    fn is_leap_year(&self) -> bool {
+        if self.year <= REFORM_YEAR {
+            return self.year % 4 == 0;
+        }
+        (self.year % 4 == 0) ^ (self.year % 100 == 0) ^ (self.year % 400 == 0)
+    }
+}
+
 
 
 fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
@@ -34,5 +53,6 @@ fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
 
 pub fn display(year: u32, starting_day: u32) {
     // io::play
+    io::
     // handler_calendar
 }
