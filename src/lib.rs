@@ -6,6 +6,20 @@ const COLUMN: usize = 3;
 const ROWS: usize = 4;
 
 static TOKEN: &'static str = "\n";
+const MONTH_NAMES: [&'static str; 12] = [
+    "       January       ",
+    "       February       ",
+    "       March       ",
+    "        April       ",
+    "          May       ",
+    "          June       ",
+    "        July       ",
+    "         August       ",
+    "       September       ",
+    "       October       ",
+    "       November       ",
+    "       December       ",
+];
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -159,7 +173,7 @@ fn month_printable(
         year_memoized,
         starting_day,
     );
-    result.push(format!("        --{:02}--        ", month));
+    result.push(format!("{}", MONTH_NAMES[month - 1]));
     let week_name = vec!["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
     let header = circular_week_name(week_name, starting_day as usize);
     result.push(header);
