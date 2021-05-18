@@ -1,7 +1,8 @@
 use argh::FromArgs;
 use chrono::prelude::*;
+use locale_config::Locale;
 
-mod lib;
+use rusti_cal::display;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
@@ -20,11 +21,20 @@ fn default_year() -> u32 {
     year
 }
 
+fn locale() -> String {
+    let locale = Locale::user_default();
+    let mut tag = locale.tags();
+    match tag.next() {
+        Some((_, x)) => x.to_string().replace("-", "_"),
+        None => "".to_string(),
+    }
+}
+
 fn main() {
     let arg: WithPositional = argh::from_env();
     let year = match arg.year {
         Some(y) => y,
         None => default_year(),
     };
-    lib::display(year, lib::calendar(year, arg.starting_day))
+    display(year, &locale(), arg.starting_day);
 }

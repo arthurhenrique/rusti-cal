@@ -1,3 +1,5 @@
+mod locale;
+
 const REFORM_YEAR: u32 = 1099;
 const MONTHS: usize = 12;
 const WEEKDAYS: u32 = 7;
@@ -6,20 +8,6 @@ const COLUMN: usize = 3;
 const ROWS: usize = 4;
 
 static TOKEN: &'static str = "\n";
-const MONTH_NAMES: [&'static str; 12] = [
-    "       January       ",
-    "       February       ",
-    "       March       ",
-    "        April       ",
-    "          May       ",
-    "          June       ",
-    "        July       ",
-    "         August       ",
-    "       September       ",
-    "       October       ",
-    "       November       ",
-    "       December       ",
-];
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -163,6 +151,8 @@ fn month_printable(
     months_memoized: Vec<u32>,
     year_memoized: u32,
     starting_day: u32,
+    month_names: Vec<String>,
+    week_names: Vec<String>,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
     let body = body_printable(
@@ -173,9 +163,9 @@ fn month_printable(
         year_memoized,
         starting_day,
     );
-    result.push(format!("{}", MONTH_NAMES[month - 1]));
-    let week_name = vec!["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-    let header = circular_week_name(week_name, starting_day as usize);
+    let month_name = &month_names[month - 1];
+    result.push(format!(" {:^20}", month_name));
+    let header = circular_week_name(week_names, starting_day as usize);
     result.push(header);
 
     body.into_iter().for_each(|item| {
@@ -184,7 +174,7 @@ fn month_printable(
     result
 }
 
-fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
+fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
     let mut s = format!(" ");
     let mut i = idx;
 
@@ -199,12 +189,13 @@ fn circular_week_name(week_name: Vec<&str>, idx: usize) -> String {
     s.to_string()
 }
 
-pub fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
+pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<String>>> {
     let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
     let mut row_counter = 0;
     let mut column_counter = 0;
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
+    let locale_info = locale::LocaleInfo::new(locale_str);
 
     (1..MONTHS + 1).for_each(|month| {
         rows[row_counter][column_counter] = month_printable(
@@ -214,6 +205,8 @@ pub fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
             months_memoized.clone(),
             year_memoized.clone(),
             starting_day,
+            locale_info.month_names(),
+            locale_info.week_day_names(),
         );
         column_counter = month % COLUMN;
         if column_counter == 0 {
@@ -223,8 +216,9 @@ pub fn calendar(year: u32, starting_day: u32) -> Vec<Vec<Vec<String>>> {
     rows
 }
 
-pub fn display(year: u32, rows: Vec<Vec<Vec<String>>>) {
-    println!("                                {}", year);
+pub fn display(year: u32, locale_str: &str, starting_day: u32) {
+    let rows = calendar(year, locale_str, starting_day);
+    println!(" {:^63}", year);
     for row in rows {
         for i in 0..8 {
             for j in 0..3 {

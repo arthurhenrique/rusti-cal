@@ -13,3 +13,5 @@ categories = ["command-line-utilities"]
 [dependencies]
 argh = "0.1.4"
 chrono = "0.4"
+locale_config = "0.3.0"
+pure-rust-locales = "0.5.6"
