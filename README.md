@@ -64,3 +64,11 @@ $ rusti-cal <year> --starting-day 5
 ```sh
 $ rusti-cal <year> --starting-day 6
 ```
+
+## Locale based names
+
+The current locale can be overwritten with the `LANG` environment variable to display the calendar in another language.
+
+```sh
+$ LANG=fr_FR rusti-cal <year>
+```

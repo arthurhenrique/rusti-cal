@@ -1,6 +1,6 @@
 [package]
 name = "rusti-cal"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["Arthur Henrique <arthur393@gmail.com>"]
 edition = "2018"
 description = "⚡️ Lightning-fast and minimal calendar command line. It's similar to `cal`. Written in Rust 🦀"
