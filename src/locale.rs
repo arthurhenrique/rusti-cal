@@ -53,7 +53,7 @@ fn parse_invalid_locale() {
 }
 
 #[test]
-fn parse_defaul_locale() {
+fn parse_default_locale() {
     let res = LocaleInfo::new("");
     assert_eq!(res.locale, Locale::POSIX);
 
