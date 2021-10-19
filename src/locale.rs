@@ -43,7 +43,7 @@ fn to_titlecase(str: &str) -> String {
         };
         res.push_str(&char);
     }
-    res.to_string()
+    res
 }
 
 #[test]
