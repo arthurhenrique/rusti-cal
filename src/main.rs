@@ -32,9 +32,6 @@ fn locale() -> String {
 
 fn main() {
     let arg = argh::from_env::<WithPositional>();
-    let year = match arg.year {
-        Some(y) => y,
-        None => default_year(),
-    };
+    let year = arg.year.unwrap_or_else(default_year);
     display(year, &locale(), arg.starting_day);
 }
