@@ -7,7 +7,7 @@ const WEEKDAYS: u32 = 7;
 const COLUMN: usize = 3;
 const ROWS: usize = 4;
 
-static TOKEN: &'static str = "\n";
+static TOKEN: &str = "\n";
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
