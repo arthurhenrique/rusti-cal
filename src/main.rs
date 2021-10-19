@@ -31,7 +31,7 @@ fn locale() -> String {
 }
 
 fn main() {
-    let arg: WithPositional = argh::from_env();
+    let arg = argh::from_env::<WithPositional>();
     let year = match arg.year {
         Some(y) => y,
         None => default_year(),
