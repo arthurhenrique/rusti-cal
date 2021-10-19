@@ -175,12 +175,12 @@ fn month_printable(
 }
 
 fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
-    let mut s = format!(" ");
+    let mut s = " ".to_string();
     let mut i = idx;
 
     while i < 7 + idx {
         if i == 6 + idx {
-            s.push_str(&format!("{}", week_name[i % 7]));
+            s.push_str(week_name[i % 7].as_str());
         } else {
             s.push_str(&format!("{} ", week_name[i % 7]));
         }
