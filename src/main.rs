@@ -23,11 +23,11 @@ fn default_year() -> u32 {
 
 fn locale() -> String {
     let locale = Locale::user_default();
-    let mut tag = locale.tags();
-    match tag.next() {
-        Some((_, x)) => x.to_string().replace("-", "_"),
-        None => "".to_string(),
-    }
+    locale
+        .tags()
+        .next()
+        .map(|(_, x)| x.to_string().replace("-", "_"))
+        .unwrap_or_default()
 }
 
 fn main() {
