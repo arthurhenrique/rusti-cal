@@ -27,7 +27,7 @@ impl LocaleInfo {
             .map(|day| to_titlecase(day))
             .map(|day| match day.chars().count() {
                 1 => format!("{} ", day),
-                _ => day.chars().take(2).collect::<String>().to_string(),
+                _ => day.chars().take(2).collect(),
             })
             .collect()
     }
