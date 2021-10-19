@@ -203,7 +203,7 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
             month,
             months[month],
             months_memoized.clone(),
-            year_memoized.clone(),
+            year_memoized,
             starting_day,
             locale_info.month_names(),
             locale_info.week_day_names(),
