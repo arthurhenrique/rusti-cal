@@ -169,7 +169,7 @@ fn month_printable(
     result.push(header);
 
     body.into_iter().for_each(|item| {
-        result.push(item.to_string());
+        result.push(item);
     });
     result
 }
