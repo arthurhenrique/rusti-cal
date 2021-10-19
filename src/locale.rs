@@ -34,16 +34,16 @@ impl LocaleInfo {
 }
 
 fn to_titlecase(str: &str) -> String {
-    let mut res = String::new();
-    for (pos, c) in str.chars().enumerate() {
-        let char = if pos == 0 {
-            c.to_uppercase().to_string()
-        } else {
-            c.to_string()
-        };
-        res.push_str(&char);
-    }
-    res
+    str.chars()
+        .enumerate()
+        .map(|(pos, c)| {
+            if pos == 0 {
+                c.to_uppercase().to_string()
+            } else {
+                c.to_string()
+            }
+        })
+        .collect()
 }
 
 #[test]
