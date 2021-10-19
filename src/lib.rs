@@ -75,12 +75,12 @@ fn first_day_printable(day_year: u32, starting_day: u32) -> String {
     let mut printable = format!("");
 
     if (day_year - starting_day) % WEEKDAYS == 0 {
-        printable.push_str(&format!("                  "));
+        printable.push_str("                  ");
     }
     for i in 2..WEEKDAYS {
         spaces += &"   ".to_string();
         if (day_year - starting_day) % WEEKDAYS == i {
-            printable.push_str(&format!("{}", spaces));
+            printable.push_str(spaces.as_str());
             break;
         }
     }
