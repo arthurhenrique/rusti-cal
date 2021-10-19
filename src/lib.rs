@@ -88,18 +88,17 @@ fn first_day_printable(day_year: u32, starting_day: u32) -> String {
 }
 
 fn remain_day_printable(day: u32, day_year: u32, starting_day: u32) -> String {
-    let mut printable = format!("");
+    let base = if ((day_year - starting_day) % WEEKDAYS) == 0 {
+        format!("{:3}{}", day, TOKEN)
+    } else {
+        String::default()
+    };
 
-    if (day_year - starting_day) % WEEKDAYS == 0 {
-        printable.push_str(&format!("{:3}{}", day, TOKEN))
-    }
-    for i in 1..WEEKDAYS {
-        if (day_year - starting_day) % WEEKDAYS == i {
-            printable.push_str(&format!("{:3}", day));
-            break;
-        }
-    }
-    printable
+    let complement = (1..WEEKDAYS)
+        .find_map(|i| ((day_year - starting_day) % WEEKDAYS == i).then(|| format!("{:3}", day)))
+        .unwrap_or_default();
+
+    format!("{}{}", base, complement)
 }
 
 fn body_printable(
