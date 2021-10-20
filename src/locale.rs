@@ -27,28 +27,23 @@ impl LocaleInfo {
             .map(|day| to_titlecase(day))
             .map(|day| match day.chars().count() {
                 1 => format!("{} ", day),
-                _ => day
-                    .chars()
-                    .map(|c| c)
-                    .take(2)
-                    .collect::<String>()
-                    .to_string(),
+                _ => day.chars().take(2).collect(),
             })
             .collect()
     }
 }
 
 fn to_titlecase(str: &str) -> String {
-    let mut res = String::new();
-    for (pos, c) in str.chars().enumerate() {
-        let char = if pos == 0 {
-            c.to_uppercase().to_string()
-        } else {
-            c.to_string()
-        };
-        res.push_str(&char);
-    }
-    res.to_string()
+    str.chars()
+        .enumerate()
+        .map(|(pos, c)| {
+            if pos == 0 {
+                c.to_uppercase().to_string()
+            } else {
+                c.to_string()
+            }
+        })
+        .collect()
 }
 
 #[test]
@@ -58,7 +53,7 @@ fn parse_invalid_locale() {
 }
 
 #[test]
-fn parse_defaul_locale() {
+fn parse_default_locale() {
     let res = LocaleInfo::new("");
     assert_eq!(res.locale, Locale::POSIX);
 

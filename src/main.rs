@@ -7,8 +7,8 @@ use rusti_cal::display;
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
 struct WithPositional {
-    #[argh(positional)]
-    year: Option<u32>,
+    #[argh(positional, default = "default_year()")]
+    year: u32,
 
     /// an optional starting_day which is "0" by default
     #[argh(option, default = "0")]
@@ -23,18 +23,14 @@ fn default_year() -> u32 {
 
 fn locale() -> String {
     let locale = Locale::user_default();
-    let mut tag = locale.tags();
-    match tag.next() {
-        Some((_, x)) => x.to_string().replace("-", "_"),
-        None => "".to_string(),
-    }
+    locale
+        .tags()
+        .next()
+        .map(|(_, x)| x.to_string().replace("-", "_"))
+        .unwrap_or_default()
 }
 
 fn main() {
-    let arg: WithPositional = argh::from_env();
-    let year = match arg.year {
-        Some(y) => y,
-        None => default_year(),
-    };
-    display(year, &locale(), arg.starting_day);
+    let arg = argh::from_env::<WithPositional>();
+    display(arg.year, &locale(), arg.starting_day);
 }

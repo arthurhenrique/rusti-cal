@@ -7,7 +7,7 @@ const WEEKDAYS: u32 = 7;
 const COLUMN: usize = 3;
 const ROWS: usize = 4;
 
-static TOKEN: &'static str = "\n";
+static TOKEN: &str = "\n";
 
 fn is_leap_year(year: u32) -> bool {
     if year <= REFORM_YEAR {
@@ -75,12 +75,12 @@ fn first_day_printable(day_year: u32, starting_day: u32) -> String {
     let mut printable = format!("");
 
     if (day_year - starting_day) % WEEKDAYS == 0 {
-        printable.push_str(&format!("                  "));
+        printable.push_str("                  ");
     }
     for i in 2..WEEKDAYS {
         spaces += &"   ".to_string();
         if (day_year - starting_day) % WEEKDAYS == i {
-            printable.push_str(&format!("{}", spaces));
+            printable.push_str(spaces.as_str());
             break;
         }
     }
@@ -88,18 +88,17 @@ fn first_day_printable(day_year: u32, starting_day: u32) -> String {
 }
 
 fn remain_day_printable(day: u32, day_year: u32, starting_day: u32) -> String {
-    let mut printable = format!("");
+    let base = if ((day_year - starting_day) % WEEKDAYS) == 0 {
+        format!("{:3}{}", day, TOKEN)
+    } else {
+        String::default()
+    };
 
-    if (day_year - starting_day) % WEEKDAYS == 0 {
-        printable.push_str(&format!("{:3}{}", day, TOKEN))
-    }
-    for i in 1..WEEKDAYS {
-        if (day_year - starting_day) % WEEKDAYS == i {
-            printable.push_str(&format!("{:3}", day));
-            break;
-        }
-    }
-    printable
+    let complement = (1..WEEKDAYS)
+        .find_map(|i| ((day_year - starting_day) % WEEKDAYS == i).then(|| format!("{:3}", day)))
+        .unwrap_or_default();
+
+    format!("{}{}", base, complement)
 }
 
 fn body_printable(
@@ -169,18 +168,18 @@ fn month_printable(
     result.push(header);
 
     body.into_iter().for_each(|item| {
-        result.push(item.to_string());
+        result.push(item);
     });
     result
 }
 
 fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
-    let mut s = format!(" ");
+    let mut s = " ".to_string();
     let mut i = idx;
 
     while i < 7 + idx {
         if i == 6 + idx {
-            s.push_str(&format!("{}", week_name[i % 7]));
+            s.push_str(week_name[i % 7].as_str());
         } else {
             s.push_str(&format!("{} ", week_name[i % 7]));
         }
@@ -203,7 +202,7 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
             month,
             months[month],
             months_memoized.clone(),
-            year_memoized.clone(),
+            year_memoized,
             starting_day,
             locale_info.month_names(),
             locale_info.week_day_names(),
