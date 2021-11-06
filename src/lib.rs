@@ -6,6 +6,7 @@ const WEEKDAYS: u32 = 7;
 
 const COLUMN: usize = 3;
 const ROWS: usize = 4;
+const ROW_SIZE: usize = 7;
 
 static TOKEN: &str = "\n";
 
@@ -177,11 +178,11 @@ fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
     let mut s = " ".to_string();
     let mut i = idx;
 
-    while i < 7 + idx {
-        if i == 6 + idx {
-            s.push_str(week_name[i % 7].as_str());
+    while i < ROW_SIZE + idx {
+        if i == (ROW_SIZE - 1) + idx {
+            s.push_str(week_name[i % ROW_SIZE].as_str());
         } else {
-            s.push_str(&format!("{} ", week_name[i % 7]));
+            s.push_str(&format!("{} ", week_name[i % ROW_SIZE]));
         }
         i += 1
     }
