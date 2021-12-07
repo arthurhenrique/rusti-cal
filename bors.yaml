@@ -1,0 +1,11 @@
+
+status = [
+    "Run tests"
+]
+block_labels = [ "do not merge" ]
+timeout_sec = 3600 # 1 hours
+pr_status = []
+delete_merged_branches = true
+required_approvals = 2
+
+
