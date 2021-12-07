@@ -229,10 +229,7 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32) {
     }
 }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> adding circular week name test
 #[test]
 fn test_circular_week_name() {
     let locale_str = "en_US";
