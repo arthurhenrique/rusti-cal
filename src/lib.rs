@@ -237,3 +237,11 @@ fn test_circular_week_name() {
     let week_name = locale_info.week_day_names();
     assert_eq!(circular_week_name(week_name, 0), " Su Mo Tu We Th Fr Sa");
 }
+
+#[test]
+fn test_circular_week_name_pt_br() {
+    let locale_str = "pt_BR";
+    let locale_info = locale::LocaleInfo::new(locale_str);
+    let week_name = locale_info.week_day_names();
+    assert_eq!(circular_week_name(week_name, 0), " Do Se Te Qu Qu Se Sá");
+}
