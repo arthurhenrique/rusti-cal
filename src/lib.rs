@@ -131,6 +131,7 @@ fn body_printable(
         .for_each(|i| result.push(i.to_string()));
 
     // all body should have at least 6 lines
+    // plz refactor me
     let len = result.len();
     if len <= 6 {
         let spaces = 21 - result[len - 1].len();
