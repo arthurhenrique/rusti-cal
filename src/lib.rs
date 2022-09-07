@@ -237,7 +237,7 @@ fn print_colored_row(row: &str, starting_day: u32, today_included: bool, pos_tod
         .enumerate()
         .map(|(i, s)| {
             if today_included && (i == char_today || i == char_today + 1) {
-                Black.bold().on(Green).paint(s)
+                Black.on(Green).paint(s)
             } else if i == char_saturday || i == char_saturday + 1 {
                 Yellow.bold().paint(s)
             } else if i == char_sunday || i == char_sunday + 1 {
@@ -252,7 +252,7 @@ fn print_colored_row(row: &str, starting_day: u32, today_included: bool, pos_tod
 }
 
 /// calculates the positions of the given day within the overall grid
-/// 
+///
 /// Returns a tuple
 ///
 /// (month row, month column, day x position, line of month)
