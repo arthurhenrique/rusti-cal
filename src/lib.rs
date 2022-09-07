@@ -1,9 +1,10 @@
 mod locale;
 
 use ansi_term::{
-    Color::{Cyan, Red, Yellow},
+    Color::{Black, Cyan, Green, Red, Yellow},
     Style,
 };
+use chrono::Datelike;
 
 const REFORM_YEAR: u32 = 1099;
 const MONTHS: usize = 12;
@@ -222,21 +223,27 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
     rows
 }
 
-fn print_colored_row(row: &str, starting_day: u32) {
-    let pos_saturday = 1 + 3 * ((((6 - starting_day) % 7) + 7) % 7) as usize;
-    let pos_sunday = 1 + 3 * ((((7 - starting_day) % 7) + 7) % 7) as usize;
+fn print_colored_row(row: &str, starting_day: u32, today_included: bool, pos_today: u32) {
+    let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7;
+    let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7;
+
+    let char_saturday = (1 + 3 * pos_saturday) as usize;
+    let char_sunday = (1 + 3 * pos_sunday) as usize;
+    let char_today = (1 + 3 * pos_today) as usize;
 
     let row = row
         .split("")
         .filter(|s| !s.is_empty())
         .enumerate()
         .map(|(i, s)| {
-            if i == pos_saturday || i == pos_saturday + 1 {
-                return Yellow.bold().paint(s);
-            } else if i == pos_sunday || i == pos_sunday + 1 {
-                return Red.bold().paint(s);
+            if today_included && (i == char_today || i == char_today + 1) {
+                Black.bold().on(Green).paint(s)
+            } else if i == char_saturday || i == char_saturday + 1 {
+                Yellow.bold().paint(s)
+            } else if i == char_sunday || i == char_sunday + 1 {
+                Red.bold().paint(s)
             } else {
-                return ansi_term::Style::default().paint(s);
+                ansi_term::Style::default().paint(s)
             }
         })
         .collect::<Vec<ansi_term::ANSIString>>();
@@ -244,27 +251,79 @@ fn print_colored_row(row: &str, starting_day: u32) {
     print!("{} ", ansi_term::ANSIStrings(&row));
 }
 
-pub fn display(year: u32, locale_str: &str, starting_day: u32, color: bool) {
+/// calculates the positions of the given day within the overall grid
+/// 
+/// Returns a tuple
+///
+/// (month row, month column, day x position, line of month)
+fn get_today_position(year: u32, month: u32, day: u32, starting_day: u32) -> (u32, u32, u32, u32) {
+    let (months_memoized, _) = get_days_accumulated_by_month(year);
+
+    let first_of_month = days_by_date(1, month as usize, year, months_memoized, days_by_year(year));
+    let first_offset = (first_of_month - starting_day - 1) % WEEKDAYS;
+
+    let row_index = (month - 1) / 3;
+    let col_index = (month - 1) % 3;
+
+    let absolute_pos = first_offset + day - 1;
+    let x = absolute_pos % 7;
+    let y = absolute_pos / 7;
+
+    (row_index, col_index, x, y)
+}
+
+pub fn display_colored(year: u32, locale_str: &str, starting_day: u32) {
     let rows = calendar(year, locale_str, starting_day);
 
-    if color {
-        println!("{}", Style::new().bold().paint(format!(" {:^63}", year)));
-    } else {
-        println!(" {:^63}", year);
-    }
+    let today = {
+        let now = chrono::Local::now();
+        (now.year() as u32, now.month(), now.day())
+    };
 
+    let t_pos = if today.0 == year {
+        Some(get_today_position(today.0, today.1, today.2, starting_day))
+    } else {
+        None
+    };
+
+    // print the year
+    println!("{}", Style::new().bold().paint(format!(" {:^63}", year)));
+
+    for (r, row) in rows.iter().enumerate() {
+        for line in 0..8 {
+            for col in 0..3 {
+                if line == 0 {
+                    print!("{} ", Cyan.bold().paint(&row[col][line]));
+                } else {
+                    // check if today is part of this line
+                    let (today_included, x) = {
+                        if let Some(p) = t_pos {
+                            // check for the correct row, col and line
+                            if p.0 == r as u32 && p.1 == col as u32 && p.3 + 2 == line as u32 {
+                                (true, p.2)
+                            } else {
+                                (false, 0)
+                            }
+                        } else {
+                            (false, 0)
+                        }
+                    };
+                    // print the colred line
+                    print_colored_row(&row[col][line], starting_day, today_included, x);
+                }
+            }
+            println!();
+        }
+    }
+}
+
+pub fn display(year: u32, locale_str: &str, starting_day: u32) {
+    let rows = calendar(year, locale_str, starting_day);
+    println!(" {:^63}", year);
     for row in rows {
         for i in 0..8 {
             for j in 0..3 {
-                if color {
-                    if i == 0 {
-                        print!("{} ", Cyan.bold().paint(&row[j][i]));
-                    } else {
-                        print_colored_row(&row[j][i], starting_day)
-                    }
-                } else {
-                    print!("{} ", &row[j][i]);
-                }
+                print!("{} ", &row[j][i]);
             }
             println!();
         }
