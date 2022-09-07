@@ -1,6 +1,9 @@
 mod locale;
 
-use ansi_term::Color::{Red, Yellow};
+use ansi_term::{
+    Color::{Cyan, Red, Yellow},
+    Style,
+};
 
 const REFORM_YEAR: u32 = 1099;
 const MONTHS: usize = 12;
@@ -243,12 +246,22 @@ fn print_colored_row(row: &str, starting_day: u32) {
 
 pub fn display(year: u32, locale_str: &str, starting_day: u32, color: bool) {
     let rows = calendar(year, locale_str, starting_day);
-    println!(" {:^63}", year);
+
+    if color {
+        println!("{}", Style::new().bold().paint(format!(" {:^63}", year)));
+    } else {
+        println!(" {:^63}", year);
+    }
+
     for row in rows {
         for i in 0..8 {
             for j in 0..3 {
-                if color && i > 0 {
-                    print_colored_row(&row[j][i], starting_day)
+                if color {
+                    if i == 0 {
+                        print!("{} ", Cyan.bold().paint(&row[j][i]));
+                    } else {
+                        print_colored_row(&row[j][i], starting_day)
+                    }
                 } else {
                     print!("{} ", &row[j][i]);
                 }
