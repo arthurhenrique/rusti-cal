@@ -72,3 +72,12 @@ The current locale can be overwritten with the `LANG` environment variable to di
 ```sh
 $ LANG=fr_FR rusti-cal <year>
 ```
+
+## Colored output
+
+Enable colored output with the `--color` or `-c` option. This highlights weekend days and the current day.
+
+```sh
+$ rusti-cal <year> --color
+```
+![colored](./doc/colored.png)
