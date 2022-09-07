@@ -1,5 +1,7 @@
 mod locale;
 
+use ansi_term::Color::{Red, Yellow};
+
 const REFORM_YEAR: u32 = 1099;
 const MONTHS: usize = 12;
 const WEEKDAYS: u32 = 7;
@@ -217,13 +219,39 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
     rows
 }
 
-pub fn display(year: u32, locale_str: &str, starting_day: u32) {
+fn print_colored_row(row: &str, starting_day: u32) {
+    let pos_saturday = 1 + 3 * ((((6 - starting_day) % 7) + 7) % 7) as usize;
+    let pos_sunday = 1 + 3 * ((((7 - starting_day) % 7) + 7) % 7) as usize;
+
+    let row = row
+        .split("")
+        .filter(|s| !s.is_empty())
+        .enumerate()
+        .map(|(i, s)| {
+            if i == pos_saturday || i == pos_saturday + 1 {
+                return Yellow.bold().paint(s);
+            } else if i == pos_sunday || i == pos_sunday + 1 {
+                return Red.bold().paint(s);
+            } else {
+                return ansi_term::Style::default().paint(s);
+            }
+        })
+        .collect::<Vec<ansi_term::ANSIString>>();
+
+    print!("{} ", ansi_term::ANSIStrings(&row));
+}
+
+pub fn display(year: u32, locale_str: &str, starting_day: u32, color: bool) {
     let rows = calendar(year, locale_str, starting_day);
     println!(" {:^63}", year);
     for row in rows {
         for i in 0..8 {
             for j in 0..3 {
-                print!("{} ", &row[j][i]);
+                if color && i > 0 {
+                    print_colored_row(&row[j][i], starting_day)
+                } else {
+                    print!("{} ", &row[j][i]);
+                }
             }
             println!();
         }

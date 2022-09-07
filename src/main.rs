@@ -13,6 +13,10 @@ struct WithPositional {
     /// an optional starting_day which is "0" by default
     #[argh(option, default = "0")]
     starting_day: u32,
+
+    /// an optional flag for enabling colored output
+    #[argh(switch, short = 'c')]
+    color: bool,
 }
 
 fn default_year() -> u32 {
@@ -32,5 +36,5 @@ fn locale() -> String {
 
 fn main() {
     let arg = argh::from_env::<WithPositional>();
-    display(arg.year, &locale(), arg.starting_day);
+    display(arg.year, &locale(), arg.starting_day, arg.color);
 }
