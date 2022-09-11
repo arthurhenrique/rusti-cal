@@ -11,6 +11,13 @@ Written in Rust 🦀
 $ cargo install rusti-cal
 ```
 
+If you are on NetBSD, there's a package available from the official repositories.
+To install simply run:
+
+```sh
+# pkgin install rusti-cal
+```
+
 ## Usage
 
 ```sh
