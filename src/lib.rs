@@ -437,7 +437,7 @@ fn test_days_by_month() {
         assert_eq!(
             days_by_month(test_case.0),
             test_case.1,
-            "Year {} is not a leap year",
+            "Year {}",
             test_case.0
         );
     }
