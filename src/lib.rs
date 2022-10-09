@@ -345,3 +345,12 @@ fn test_circular_week_name_pt_br() {
     let week_name = locale_info.week_day_names();
     assert_eq!(circular_week_name(week_name, 0), " Do Se Te Qu Qu Se Sá");
 }
+
+#[test]
+fn test_is_leap_year() {
+    assert_eq!(is_leap_year(2022), false, "2022 is not a leap year");
+    assert_eq!(is_leap_year(2023), false, "2023 is not a leap year");
+    assert_eq!(is_leap_year(2025), false, "2025 is not a leap year");
+
+    assert_eq!(is_leap_year(2024), true, "2024 is a leap year");
+}
