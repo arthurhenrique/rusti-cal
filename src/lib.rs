@@ -307,7 +307,7 @@ pub fn display_colored(year: u32, locale_str: &str, starting_day: u32) {
                             (false, 0)
                         }
                     };
-                    // print the colred line
+                    // print the colored line
                     print_colored_row(&row[col][line], starting_day, today_included, x);
                 }
             }
