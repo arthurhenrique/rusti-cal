@@ -28,9 +28,7 @@ fn is_leap_year(year: u32) -> bool {
 }
 
 fn count_leap_years(year: u32) -> u32 {
-    if year < 1 {
-        0
-    } else if year <= REFORM_YEAR {
+    if year <= REFORM_YEAR {
         (year - 1) / 4
     } else {
         ((year - 1) / 4) - ((year - 1) / 100) + ((year - 1) / 400) + SPECIAL_LEAP_YEARS
