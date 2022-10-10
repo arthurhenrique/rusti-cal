@@ -370,7 +370,6 @@ fn test_is_leap_year() {
 #[test]
 fn test_count_leap_years() {
     let test_cases = [
-        (0, 0),
         (400, 99),
         (401, 100),
         (1100, 274),
