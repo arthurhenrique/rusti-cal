@@ -18,3 +18,10 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Install performance bin
+      run: |
+        wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
+        sudo dpkg -i hyperfine_1.15.0_amd64.deb
+        cargo build --release
+    - name: Run performance
+      run:  hyperfine --warmup 5 -N --runs 1000 ./target/release/rusti-cal

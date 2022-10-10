@@ -5,6 +5,8 @@
 ⚡️ Lightning-fast and minimal calendar command line. It's similar to `cal`.
 Written in Rust 🦀
 
+![Tests](https://github.com/arthurhenrique/rusti-cal/actions/workflows/rust.yml/badge.svg)
+
 ## How Can Install?
 
 ```sh
