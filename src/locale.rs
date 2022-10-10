@@ -58,6 +58,7 @@ fn parse_default_locale() {
     assert_eq!(res.locale, Locale::POSIX);
 
     let months = res.month_names();
+    assert_eq!(months.len(), 12);
     assert_eq!(months[0], "January");
     assert_eq!(months[1], "February");
     assert_eq!(months[2], "March");
@@ -81,6 +82,7 @@ fn parse_english_locale() {
     assert_eq!(res.locale, Locale::en_AU);
 
     let months = res.month_names();
+    assert_eq!(months.len(), 12);
     assert_eq!(months[0], "January");
     assert_eq!(months[1], "February");
     assert_eq!(months[2], "March");
@@ -104,6 +106,7 @@ fn parse_non_english_locale() {
     assert_eq!(res.locale, Locale::hu_HU);
 
     let months = res.month_names();
+    assert_eq!(months.len(), 12);
     assert_eq!(months[0], "Január");
     assert_eq!(months[1], "Február");
     assert_eq!(months[2], "Március");
