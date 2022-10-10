@@ -7,6 +7,10 @@ use ansi_term::{
 use chrono::Datelike;
 
 const REFORM_YEAR: u32 = 1099;
+
+// SPECIAL_LEAP_YEARS are years before REFORM_YEAR that are divisible by 100, but not by 400.
+const SPECIAL_LEAP_YEARS: u32 = (REFORM_YEAR / 100) - (REFORM_YEAR / 400);
+
 const MONTHS: usize = 12;
 const WEEKDAYS: u32 = 7;
 
@@ -23,26 +27,24 @@ fn is_leap_year(year: u32) -> bool {
     (year % 4 == 0) ^ (year % 100 == 0) ^ (year % 400 == 0)
 }
 
-fn days_by_year(mut year: u32) -> u32 {
-    let mut count: u32 = 0;
-
-    while year > 1 {
-        year -= 1;
-        if is_leap_year(year) {
-            count += 366
-        } else {
-            count += 365
-        }
+fn count_leap_years(year: u32) -> u32 {
+    if year <= REFORM_YEAR {
+        (year - 1) / 4
+    } else {
+        ((year - 1) / 4) - ((year - 1) / 100) + ((year - 1) / 400) + SPECIAL_LEAP_YEARS
     }
-    count
+}
+
+fn days_by_year(year: u32) -> u32 {
+    if year < 1 {
+        0
+    } else {
+        (year - 1) * 365 + count_leap_years(year)
+    }
 }
 
 fn days_by_month(year: u32) -> Vec<u32> {
-    let mut feb_day: u32 = 28;
-
-    if is_leap_year(year) {
-        feb_day = 29;
-    }
+    let feb_day: u32 = if is_leap_year(year) { 29 } else { 28 };
     vec![0, 31, feb_day, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 }
 
@@ -53,16 +55,11 @@ fn days_by_date(
     months_memoized: Vec<u32>,
     year_memoized: u32,
 ) -> u32 {
-    let mut count = 0;
-
-    count += day;
-    if month > 1 {
-        count += months_memoized[month - 1]
-    }
-    if year > 1 {
-        count += year_memoized
-    }
-    count
+    day + (if month > 1 {
+        months_memoized[month - 1]
+    } else {
+        0
+    }) + (if year > 1 { year_memoized } else { 0 })
 }
 
 fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
@@ -308,7 +305,7 @@ pub fn display_colored(year: u32, locale_str: &str, starting_day: u32) {
                             (false, 0)
                         }
                     };
-                    // print the colred line
+                    // print the colored line
                     print_colored_row(&row[col][line], starting_day, today_included, x);
                 }
             }
@@ -344,4 +341,119 @@ fn test_circular_week_name_pt_br() {
     let locale_info = locale::LocaleInfo::new(locale_str);
     let week_name = locale_info.week_day_names();
     assert_eq!(circular_week_name(week_name, 0), " Do Se Te Qu Qu Se Sá");
+}
+
+#[test]
+fn test_is_leap_year() {
+    let test_cases = [
+        (100, true),
+        (400, true),
+        (1000, true),
+        (1100, false),
+        (2022, false),
+        (2023, false),
+        (2024, true),
+        (2025, false),
+        (2300, false),
+    ];
+    for test_case in test_cases.iter() {
+        assert_eq!(
+            is_leap_year(test_case.0),
+            test_case.1,
+            "{} is {} a leap year",
+            test_case.0,
+            if test_case.1 { "" } else { "not" }
+        );
+    }
+}
+
+#[test]
+fn test_count_leap_years() {
+    let test_cases = [(400, 99), (401, 100), (1100, 274), (1200, 298), (2022, 498)];
+    for test_case in test_cases.iter() {
+        assert_eq!(
+            count_leap_years(test_case.0),
+            test_case.1,
+            "Year {}",
+            test_case.0
+        );
+    }
+}
+
+#[test]
+fn test_days_by_year() {
+    let test_cases = [
+        (0, 0),
+        (1, 0),
+        (2, 365),
+        (3, 730),
+        (4, 1095),
+        (5, 1461),
+        (6, 1826),
+        (7, 2191),
+        (8, 2556),
+        (9, 2922),
+        (10, 3287),
+        (400, 145734),
+        (401, 146100),
+        (402, 146465),
+        (403, 146830),
+        (404, 147195),
+        (800, 291834),
+        (801, 292200),
+        (802, 292565),
+        (803, 292930),
+        (804, 293295),
+        (2022, 738163),
+        (2023, 738528),
+        (2024, 738893),
+        (2025, 739259),
+    ];
+    for test_case in test_cases.iter() {
+        assert_eq!(
+            days_by_year(test_case.0),
+            test_case.1,
+            "Year {}",
+            test_case.0
+        );
+    }
+}
+
+#[test]
+fn test_days_by_month() {
+    let not_leap = vec![0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let leap = vec![0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let test_cases = [(2022, not_leap), (2024, leap)];
+    for test_case in test_cases.iter() {
+        assert_eq!(
+            days_by_month(test_case.0),
+            test_case.1,
+            "Year {}",
+            test_case.0
+        );
+    }
+}
+
+#[test]
+fn test_days_by_date() {
+    assert_eq!(
+        days_by_date(
+            0,
+            0,
+            0,
+            vec![0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+            1
+        ),
+        0
+    );
+    assert_eq!(
+        days_by_date(
+            7,
+            4,
+            0,
+            vec![0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+            1
+        ),
+        38
+    );
 }

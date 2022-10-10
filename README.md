@@ -89,4 +89,5 @@ Enable colored output with the `--color` or `-c` option. This highlights weekend
 ```sh
 $ rusti-cal <year> --color
 ```
+
 ![colored](./doc/colored.png)
