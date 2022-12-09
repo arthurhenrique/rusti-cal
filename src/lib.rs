@@ -1,9 +1,6 @@
 mod locale;
 
-use ansi_term::{
-    Color::{Black, Cyan, Red, Yellow, RGB},
-    Style,
-};
+use ansi_term::Color::{Black, RGB};
 use chrono::Datelike;
 
 const REFORM_YEAR: u32 = 1099;
@@ -247,11 +244,11 @@ fn print_row(
                 }
             } else {
                 if today_included && (i == char_today || i == char_today + 1) {
-                    Black.on(RGB(200, 200, 200)).paint(s)
+                    Black.on(RGB(189, 147, 249)).paint(s)
                 } else if i == char_saturday || i == char_saturday + 1 {
-                    Yellow.bold().paint(s)
+                    RGB(255, 121, 198).bold().paint(s)
                 } else if i == char_sunday || i == char_sunday + 1 {
-                    Red.bold().paint(s)
+                    RGB(255, 184, 108).bold().paint(s)
                 } else {
                     ansi_term::Style::default().paint(s)
                 }
@@ -298,7 +295,12 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bo
     };
 
     // print the year
-    println!("{}", Style::new().bold().paint(format!(" {:^63}", year)));
+    println!(
+        "{}",
+        ansi_term::Style::default()
+            .bold()
+            .paint(format!(" {:^63}", year))
+    );
 
     for (r, row) in rows.iter().enumerate() {
         for line in 0..8 {
@@ -307,7 +309,7 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bo
                     if monochromatic {
                         print!("{} ", &row[col][line]);
                     } else {
-                        print!("{} ", Cyan.bold().paint(&row[col][line]));
+                        print!("{} ", RGB(98, 114, 164).bold().paint(&row[col][line]));
                     }
                 } else {
                     // check if today is part of this line
