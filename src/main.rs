@@ -2,7 +2,7 @@ use argh::FromArgs;
 use chrono::prelude::*;
 use locale_config::Locale;
 
-use rusti_cal::{display, display_colored};
+use rusti_cal::{display};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
@@ -37,8 +37,8 @@ fn locale() -> String {
 fn main() {
     let arg = argh::from_env::<WithPositional>();
     if arg.color {
-        display_colored(arg.year, &locale(), arg.starting_day);
+        display(arg.year, &locale(), arg.starting_day, false);
     } else {
-        display(arg.year, &locale(), arg.starting_day);
+        display(arg.year, &locale(), arg.starting_day, true);
     }
 }
