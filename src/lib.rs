@@ -220,7 +220,13 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
     rows
 }
 
-fn print_row(row: &str, starting_day: u32, today_included: bool, pos_today: u32, monochromatic: bool) {
+fn print_row(
+    row: &str,
+    starting_day: u32,
+    today_included: bool,
+    pos_today: u32,
+    monochromatic: bool,
+) {
     let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7;
     let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7;
 
@@ -236,7 +242,7 @@ fn print_row(row: &str, starting_day: u32, today_included: bool, pos_today: u32,
             if monochromatic {
                 if today_included && (i == char_today || i == char_today + 1) {
                     Black.on(RGB(200, 200, 200)).paint(s)
-                } else{
+                } else {
                     ansi_term::Style::default().paint(s)
                 }
             } else {
@@ -298,7 +304,7 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bo
         for line in 0..8 {
             for col in 0..3 {
                 if line == 0 {
-                    if monochromatic{
+                    if monochromatic {
                         print!("{} ", &row[col][line]);
                     } else {
                         print!("{} ", Cyan.bold().paint(&row[col][line]));
@@ -318,14 +324,19 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bo
                         }
                     };
                     // print the colored line
-                    print_row(&row[col][line], starting_day, today_included, x, monochromatic);
+                    print_row(
+                        &row[col][line],
+                        starting_day,
+                        today_included,
+                        x,
+                        monochromatic,
+                    );
                 }
             }
             println!();
         }
     }
 }
-
 
 #[test]
 fn test_circular_week_name() {

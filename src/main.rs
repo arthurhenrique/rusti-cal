@@ -2,7 +2,7 @@ use argh::FromArgs;
 use chrono::prelude::*;
 use locale_config::Locale;
 
-use rusti_cal::{display};
+use rusti_cal::display;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
