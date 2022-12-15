@@ -86,8 +86,6 @@ $ LANG=fr_FR rusti-cal <year>
 
 Enable colored output with the `--color` or `-c` option. This highlights weekend days and the current day.
 
-Using dracula theme color palette.
-
 ```sh
 $ rusti-cal <year> --color
 ```
