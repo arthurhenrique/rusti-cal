@@ -11,7 +11,7 @@ keywords = ["calendar", "cal"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-argh = "0.1.9"
+argh = "0.1.10"
 chrono = "0.4"
 locale_config = "0.3.0"
 pure-rust-locales = "0.5.6"
