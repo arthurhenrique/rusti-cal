@@ -17,6 +17,10 @@ struct WithPositional {
     /// an optional flag for enabling colored output
     #[argh(switch, short = 'c')]
     color: bool,
+
+    /// an optional flag for enabling week numbers
+    #[argh(switch, short = 'w')]
+    week_numbers: bool,
 }
 
 fn default_year() -> u32 {
@@ -37,8 +41,20 @@ fn locale() -> String {
 fn main() {
     let arg = argh::from_env::<WithPositional>();
     if arg.color {
-        display(arg.year, &locale(), arg.starting_day, false);
+        display(
+            arg.year,
+            &locale(),
+            arg.starting_day,
+            false,
+            arg.week_numbers,
+        );
     } else {
-        display(arg.year, &locale(), arg.starting_day, true);
+        display(
+            arg.year,
+            &locale(),
+            arg.starting_day,
+            true,
+            arg.week_numbers,
+        );
     }
 }

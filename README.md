@@ -30,7 +30,7 @@ $ rusti-cal <year>
 
 ![hands-on](./doc/rusti-cal.gif)
 
-## Optional Usage
+## Starting Day
 
 + Start Week With Sunday (Default)
 
@@ -38,7 +38,7 @@ $ rusti-cal <year>
 $ rusti-cal <year> --starting-day 0
 ```
 
-+ Start Week With Mondays
++ Start Week With Monday
 
 ```sh
 $ rusti-cal <year> --starting-day 1
@@ -91,3 +91,11 @@ $ rusti-cal <year> --color
 ```
 
 ![colored](./doc/colored.png)
+
+## Show Week Numbers
+
+Show week numbers with the `--week-numbers` or `-w` option.
+
+```sh
+$ rusti-cal <year> --week-numbers
+```
