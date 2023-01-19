@@ -1,7 +1,7 @@
 mod locale;
 
 use ansi_term::{
-    Color::{Black, Cyan, Red, Yellow, RGB},
+    Color::{Black, Cyan, Purple, Red, Yellow, RGB},
     Style,
 };
 use chrono::Datelike;
@@ -112,6 +112,7 @@ fn body_printable(
     months_memoized: Vec<u32>,
     year_memoized: u32,
     starting_day: u32,
+    week_numbers: bool,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
     let mut result_days = format!("");
@@ -133,17 +134,25 @@ fn body_printable(
         .into_iter()
         .for_each(|i| result.push(i.to_string()));
 
-    // all body should have at least 6 lines
-    // plz refactor me
-    let len = result.len();
-    if len <= 6 {
-        let spaces = 21 - result[len - 1].len();
-        if result[len - 1].len() < 20 {
-            for _i in 0..spaces {
-                result[len - 1] += " "
+    (0..result.len()).for_each(|line| {
+        if result[line].is_empty() {
+            if week_numbers {
+                result[line] = "                        ".to_string()
+            } else {
+                result[line] = "                     ".to_string()
             }
+        } else {
+            let spaces = 21 - result[line].len();
+            result[line] += &" ".repeat(spaces);
         }
-        result.push("                     ".to_string())
+    });
+    // all bodies should have at least 7 lines
+    if result.len() < 7 {
+        if week_numbers {
+            result.push("                        ".to_string())
+        } else {
+            result.push("                     ".to_string())
+        }
     }
     result
 }
@@ -157,6 +166,7 @@ fn month_printable(
     starting_day: u32,
     month_names: Vec<String>,
     week_names: Vec<String>,
+    week_numbers: bool,
 ) -> Vec<String> {
     let mut result = Vec::<String>::new();
     let body = body_printable(
@@ -166,6 +176,7 @@ fn month_printable(
         months_memoized,
         year_memoized,
         starting_day,
+        week_numbers,
     );
     let month_name = &month_names[month - 1];
     result.push(format!(" {:^20}", month_name));
@@ -193,10 +204,16 @@ fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
     s.to_string()
 }
 
-pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<String>>> {
+pub fn calendar(
+    year: u32,
+    locale_str: &str,
+    starting_day: u32,
+    week_numbers: bool,
+) -> Vec<Vec<Vec<String>>> {
     let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
     let mut row_counter = 0;
     let mut column_counter = 0;
+    let mut week_counter = 1;
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
     let locale_info = locale::LocaleInfo::new(locale_str);
@@ -211,7 +228,36 @@ pub fn calendar(year: u32, locale_str: &str, starting_day: u32) -> Vec<Vec<Vec<S
             starting_day,
             locale_info.month_names(),
             locale_info.week_day_names(),
+            week_numbers,
         );
+
+        if week_numbers {
+            (0..rows[row_counter][column_counter].len()).for_each(|line| {
+                if line < 2 {
+                    rows[row_counter][column_counter][line] =
+                        "   ".to_string() + &rows[row_counter][column_counter][line]
+                } else if !&rows[row_counter][column_counter][line].trim().is_empty() {
+                    let padding = if week_counter > 9 {
+                        " ".to_string()
+                    } else {
+                        "  ".to_string()
+                    };
+                    rows[row_counter][column_counter][line] = padding
+                        + &week_counter.to_string()
+                        + &rows[row_counter][column_counter][line];
+
+                    if rows[row_counter][column_counter][line]
+                        .chars()
+                        .last()
+                        .unwrap()
+                        != ' '
+                    {
+                        week_counter += 1;
+                    }
+                }
+            });
+        }
+
         column_counter = month % COLUMN;
         if column_counter == 0 {
             row_counter += 1;
@@ -226,9 +272,10 @@ fn print_row(
     today_included: bool,
     pos_today: u32,
     monochromatic: bool,
+    week_numbers: bool,
 ) {
-    let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7;
-    let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7;
+    let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7 + (week_numbers as i32);
+    let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7 + (week_numbers as i32);
 
     let char_saturday = (1 + 3 * pos_saturday) as usize;
     let char_sunday = (1 + 3 * pos_sunday) as usize;
@@ -252,6 +299,8 @@ fn print_row(
                     Yellow.bold().paint(s)
                 } else if i == char_sunday || i == char_sunday + 1 {
                     Red.bold().paint(s)
+                } else if week_numbers && i < 3 {
+                    Purple.bold().paint(s)
                 } else {
                     ansi_term::Style::default().paint(s)
                 }
@@ -283,8 +332,14 @@ fn get_today_position(year: u32, month: u32, day: u32, starting_day: u32) -> (u3
     (row_index, col_index, x, y)
 }
 
-pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bool) {
-    let rows = calendar(year, locale_str, starting_day);
+pub fn display(
+    year: u32,
+    locale_str: &str,
+    starting_day: u32,
+    monochromatic: bool,
+    week_numbers: bool,
+) {
+    let rows = calendar(year, locale_str, starting_day, week_numbers);
 
     let today = {
         let now = chrono::Local::now();
@@ -330,6 +385,7 @@ pub fn display(year: u32, locale_str: &str, starting_day: u32, monochromatic: bo
                         today_included,
                         x,
                         monochromatic,
+                        week_numbers,
                     );
                 }
             }
