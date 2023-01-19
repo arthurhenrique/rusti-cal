@@ -221,8 +221,11 @@ pub fn calendar(
         if week_numbers {
             for line in 0..rows[row_counter][column_counter].len() {
                 if line < 2 {
-                    rows[row_counter][column_counter][line] =
-                        "   ".to_string() + &rows[row_counter][column_counter][line]
+                    rows[row_counter][column_counter][line] = format!(
+                        "{}{}",
+                        "   ".to_string(),
+                        &rows[row_counter][column_counter][line]
+                    )
                 } else if !&rows[row_counter][column_counter][line].trim().is_empty() {
                     rows[row_counter][column_counter][line] = format!(
                         "{}{}{}",
