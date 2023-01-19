@@ -132,11 +132,11 @@ fn body_printable(
         .into_iter()
         .for_each(|i| result.push(i.to_string()));
 
-    (0..result.len()).for_each(|line| {
+    for line in 0..result.len() {
         let spaces =
             21 - result[line].len() + (3 * (result[line].is_empty() && week_numbers) as usize);
         result[line] += &" ".repeat(spaces);
-    });
+    }
     // all bodies should have at least 7 lines
     if result.len() < 7 {
         result.push(" ".repeat(21 + (3 * week_numbers as usize)));
@@ -219,7 +219,7 @@ pub fn calendar(
         );
 
         if week_numbers {
-            (0..rows[row_counter][column_counter].len()).for_each(|line| {
+            for line in 0..rows[row_counter][column_counter].len() {
                 if line < 2 {
                     rows[row_counter][column_counter][line] =
                         "   ".to_string() + &rows[row_counter][column_counter][line]
@@ -240,7 +240,7 @@ pub fn calendar(
                         week_counter += 1;
                     }
                 }
-            });
+            }
         }
 
         column_counter = month % COLUMN;
