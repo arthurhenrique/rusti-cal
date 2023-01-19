@@ -38,7 +38,7 @@ $ rusti-cal <year>
 $ rusti-cal <year> --starting-day 0
 ```
 
-+ Start Week With Mondays
++ Start Week With Monday
 
 ```sh
 $ rusti-cal <year> --starting-day 1
