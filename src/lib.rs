@@ -353,7 +353,7 @@ pub fn display(
     };
 
     // print the year
-    println!("{}", Style::new().bold().paint(format!(" {:^63}", year)));
+    println!("{}{}", " ".repeat(6*week_numbers as usize),Style::new().bold().paint(format!(" {:^63}", year)));
 
     for (r, row) in rows.iter().enumerate() {
         for line in 0..8 {
