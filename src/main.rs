@@ -40,21 +40,11 @@ fn locale() -> String {
 
 fn main() {
     let arg = argh::from_env::<WithPositional>();
-    if arg.color {
-        display(
-            arg.year,
-            &locale(),
-            arg.starting_day,
-            false,
-            arg.week_numbers,
-        );
-    } else {
-        display(
-            arg.year,
-            &locale(),
-            arg.starting_day,
-            true,
-            arg.week_numbers,
-        );
-    }
+    display(
+        arg.year,
+        &locale(),
+        arg.starting_day,
+        !arg.color,
+        arg.week_numbers,
+    );
 }

@@ -63,28 +63,26 @@ fn days_by_date(
 }
 
 fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
-    let mut count = 0;
-    let mut accum = Vec::new();
     let days: Vec<u32> = days_by_month(year);
-
-    (0..MONTHS + 1).for_each(|i| {
-        count += days[i];
-        accum.push(count);
-    });
+    let accum = days
+        .iter()
+        .scan(0, |acc, &x| {
+            *acc = *acc + x;
+            Some(*acc)
+        })
+        .collect();
     (accum, days)
 }
 
 fn first_day_printable(day_year: u32, starting_day: u32) -> String {
-    let mut spaces: String = "".to_string();
     let mut printable = format!("");
 
     if (day_year - starting_day) % WEEKDAYS == 0 {
         printable.push_str("                  ");
     }
     for i in 2..WEEKDAYS {
-        spaces += &"   ".to_string();
         if (day_year - starting_day) % WEEKDAYS == i {
-            printable.push_str(spaces.as_str());
+            printable.push_str(&"   ".repeat(i as usize - 1));
             break;
         }
     }
@@ -135,24 +133,13 @@ fn body_printable(
         .for_each(|i| result.push(i.to_string()));
 
     (0..result.len()).for_each(|line| {
-        if result[line].is_empty() {
-            if week_numbers {
-                result[line] = "                        ".to_string()
-            } else {
-                result[line] = "                     ".to_string()
-            }
-        } else {
-            let spaces = 21 - result[line].len();
-            result[line] += &" ".repeat(spaces);
-        }
+        let spaces =
+            21 - result[line].len() + (3 * (result[line].is_empty() && week_numbers) as usize);
+        result[line] += &" ".repeat(spaces);
     });
     // all bodies should have at least 7 lines
     if result.len() < 7 {
-        if week_numbers {
-            result.push("                        ".to_string())
-        } else {
-            result.push("                     ".to_string())
-        }
+        result.push(" ".repeat(21 + (3 * week_numbers as usize)));
     }
     result
 }
