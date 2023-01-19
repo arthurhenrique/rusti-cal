@@ -94,7 +94,7 @@ $ rusti-cal <year> --color
 
 ## Show Week Numbers
 
-Show Week Numbers with the `--week-numbers` or `-w` option.
+Show week numbers with the `--week-numbers` or `-w` option.
 
 ```sh
 $ rusti-cal <year> --week-numbers
