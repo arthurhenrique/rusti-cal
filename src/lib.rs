@@ -264,7 +264,7 @@ fn print_row(
 
     let char_saturday = (1 + 3 * pos_saturday) as usize;
     let char_sunday = (1 + 3 * pos_sunday) as usize;
-    let char_today = (1 + 3 * pos_today) as usize;
+    let char_today = (1 + 3 * (pos_today + week_numbers as u32)) as usize;
 
     let row = row
         .split("")
