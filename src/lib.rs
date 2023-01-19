@@ -224,14 +224,12 @@ pub fn calendar(
                     rows[row_counter][column_counter][line] =
                         "   ".to_string() + &rows[row_counter][column_counter][line]
                 } else if !&rows[row_counter][column_counter][line].trim().is_empty() {
-                    let padding = if week_counter > 9 {
-                        " ".to_string()
-                    } else {
-                        "  ".to_string()
-                    };
-                    rows[row_counter][column_counter][line] = padding
-                        + &week_counter.to_string()
-                        + &rows[row_counter][column_counter][line];
+                    rows[row_counter][column_counter][line] = format!(
+                        "{}{}{}",
+                        &" ".repeat(1 + (week_counter < 10) as usize),
+                        &week_counter.to_string(),
+                        &rows[row_counter][column_counter][line]
+                    );
 
                     if rows[row_counter][column_counter][line]
                         .chars()
