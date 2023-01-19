@@ -178,16 +178,10 @@ fn month_printable(
 
 fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
     let mut s = " ".to_string();
-    let mut i = idx;
-
-    while i < ROW_SIZE + idx {
-        if i == (ROW_SIZE - 1) + idx {
-            s.push_str(week_name[i % ROW_SIZE].as_str());
-        } else {
-            s.push_str(&format!("{} ", week_name[i % ROW_SIZE]));
-        }
-        i += 1
+    for i in idx..(ROW_SIZE - 1 + idx) {
+        s.push_str(&format!("{} ", week_name[i % ROW_SIZE]));
     }
+    s.push_str(week_name[(ROW_SIZE - 1 + idx) % ROW_SIZE].as_str());
     s.to_string()
 }
 
@@ -391,7 +385,34 @@ fn test_circular_week_name() {
     let locale_str = "en_US";
     let locale_info = locale::LocaleInfo::new(locale_str);
     let week_name = locale_info.week_day_names();
-    assert_eq!(circular_week_name(week_name, 0), " Su Mo Tu We Th Fr Sa");
+    assert_eq!(
+        circular_week_name(week_name.clone(), 0),
+        " Su Mo Tu We Th Fr Sa"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 1),
+        " Mo Tu We Th Fr Sa Su"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 2),
+        " Tu We Th Fr Sa Su Mo"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 3),
+        " We Th Fr Sa Su Mo Tu"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 4),
+        " Th Fr Sa Su Mo Tu We"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 5),
+        " Fr Sa Su Mo Tu We Th"
+    );
+    assert_eq!(
+        circular_week_name(week_name.clone(), 6),
+        " Sa Su Mo Tu We Th Fr"
+    );
 }
 
 #[test]
