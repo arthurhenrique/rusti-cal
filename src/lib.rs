@@ -103,15 +103,6 @@ fn remain_day_printable(day: u32, day_year: u32, starting_day: u32) -> String {
     format!("{}{}", base, complement)
 }
 
-#[test]
-fn test_remain_day_printable() {
-    assert_eq!(remain_day_printable(1, 1, 1), "  1\n");
-    assert_eq!(remain_day_printable(1, 2, 1), "  1");
-    assert_eq!(remain_day_printable(2, 2, 1), "  2");
-    assert_eq!(remain_day_printable(31, 31, 1), " 31");
-    assert_eq!(remain_day_printable(31, 31, 7), " 31");
-}
-
 fn body_printable(
     year: u32,
     month: usize,
@@ -547,10 +538,36 @@ fn test_days_by_date() {
     );
 }
 
-
 #[test]
 fn test_get_days_accumulated_by_month() {
-    assert_eq!(get_days_accumulated_by_month(2000), (vec![0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366], vec![0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]));
-    assert_eq!(get_days_accumulated_by_month(1600), (vec![0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366], vec![0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]));
-    assert_eq!(get_days_accumulated_by_month(1700), (vec![0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365], vec![0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]));
+    assert_eq!(
+        get_days_accumulated_by_month(2000),
+        (
+            vec![0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+            vec![0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        )
+    );
+    assert_eq!(
+        get_days_accumulated_by_month(1600),
+        (
+            vec![0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366],
+            vec![0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        )
+    );
+    assert_eq!(
+        get_days_accumulated_by_month(1700),
+        (
+            vec![0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],
+            vec![0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        )
+    );
+}
+
+#[test]
+fn test_remain_day_printable() {
+    assert_eq!(remain_day_printable(1, 1, 1), "  1\n");
+    assert_eq!(remain_day_printable(1, 2, 1), "  1");
+    assert_eq!(remain_day_printable(2, 2, 1), "  2");
+    assert_eq!(remain_day_printable(31, 31, 1), " 31");
+    assert_eq!(remain_day_printable(31, 31, 7), " 31");
 }
