@@ -321,9 +321,9 @@ dependencies = [
 
 [[package]]
 name = "pure-rust-locales"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4b856d7d028ebb0011d78eded5bc9185932412f36c12c67930f222d6b407526b"
+checksum = "ed02a829e62dc2715ceb8afb4f80e298148e1345749ceb369540fe0eb3368432"
 
 [[package]]
 name = "quote"
