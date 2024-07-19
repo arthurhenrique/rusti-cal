@@ -99,3 +99,5 @@ Show week numbers with the `--week-numbers` or `-w` option.
 ```sh
 $ rusti-cal <year> --week-numbers
 ```
+
+## talk is cheap
