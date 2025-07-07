@@ -217,14 +217,14 @@ pub fn calendar(
             let first_day = NaiveDate::from_ymd_opt(year as i32, month as u32, 1).unwrap();
             let offset = (first_day.weekday().num_days_from_sunday() + 7 - starting_day) % 7;
             let start_date = first_day - Duration::days(offset as i64);
-            let monday_offset = (7 + 1 - starting_day) % 7;
 
             for (line_idx, line) in printable.iter_mut().enumerate() {
                 if line_idx < 2 {
                     *line = format!("   {}", line);
                 } else if !line.trim().is_empty() {
                     let row_start = start_date + Duration::days(((line_idx - 2) as i64) * 7);
-                    let monday = row_start + Duration::days(monday_offset as i64);
+                    let monday = row_start
+                        - Duration::days(row_start.weekday().num_days_from_monday() as i64);
                     let week_num = monday.iso_week().week();
 
                     *line = format!(
