@@ -75,7 +75,11 @@ fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
 }
 
 fn days_in_year(year: u32) -> u32 {
-    if is_leap_year(year) { 366 } else { 365 }
+    if is_leap_year(year) {
+        366
+    } else {
+        365
+    }
 }
 
 fn day_of_year(year: u32, month: u32, day: u32) -> u32 {

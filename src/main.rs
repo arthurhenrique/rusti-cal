@@ -1,7 +1,7 @@
 use argh::FromArgs;
 use locale_config::Locale;
 
-use rusti_cal::{display, current_date};
+use rusti_cal::{current_date, display};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
