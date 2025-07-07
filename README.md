@@ -7,7 +7,7 @@ Written in Rust 🦀
 
 ![Tests](https://github.com/arthurhenrique/rusti-cal/actions/workflows/rust.yml/badge.svg)
 
-## How Can Install?
+## How Can I Install?
 
 ```sh
 $ cargo install rusti-cal
