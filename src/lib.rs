@@ -197,8 +197,6 @@ pub fn calendar(
     let locale_info = locale::LocaleInfo::new(locale_str);
     let month_names = locale_info.month_names();
     let week_names = locale_info.week_day_names();
-    let mut week_counter = 1;
-
     for month in 1..=MONTHS {
         let row_idx = (month - 1) / COLUMN;
         let col_idx = (month - 1) % COLUMN;
@@ -216,20 +214,29 @@ pub fn calendar(
         );
 
         if week_numbers {
+            let first_day_year =
+                days_by_date(1, month, year, months_memoized.clone(), year_memoized);
+            let offset = (first_day_year - starting_day) % WEEKDAYS;
+
             for (line_idx, line) in printable.iter_mut().enumerate() {
                 if line_idx < 2 {
                     *line = format!("   {}", line);
                 } else if !line.trim().is_empty() {
+                    let week_index = (line_idx - 2) as u32;
+                    let first_day = if week_index == 0 {
+                        1
+                    } else {
+                        1 + (WEEKDAYS - offset) % WEEKDAYS + (week_index - 1) * WEEKDAYS
+                    };
+                    let day_of_year = months_memoized[month - 1] + first_day;
+                    let week_num = (day_of_year - 1) / WEEKDAYS + 1;
+
                     *line = format!(
                         "{}{}{}",
-                        " ".repeat(1 + (week_counter < 10) as usize),
-                        week_counter,
+                        " ".repeat(1 + (week_num < 10) as usize),
+                        week_num,
                         line
                     );
-
-                    if line.chars().last().unwrap() != ' ' {
-                        week_counter += 1;
-                    }
                 }
             }
         }
