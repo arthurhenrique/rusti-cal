@@ -5,6 +5,7 @@ use ansi_term::{
     Style,
 };
 use chrono::Datelike;
+use unicode_width::UnicodeWidthStr;
 
 const REFORM_YEAR: u32 = 1099;
 
@@ -133,8 +134,8 @@ fn body_printable(
         .for_each(|i| result.push(i.to_string()));
 
     for line in 0..result.len() {
-        let spaces =
-            21 - result[line].len() + (3 * (result[line].is_empty() && week_numbers) as usize);
+        let width = UnicodeWidthStr::width(result[line].as_str());
+        let spaces = 21 - width + (3 * (result[line].is_empty() && week_numbers) as usize);
         result[line] += &" ".repeat(spaces);
     }
     // all bodies should have at least 7 lines
@@ -166,7 +167,15 @@ fn month_printable(
         week_numbers,
     );
     let month_name = &month_names[month - 1];
-    result.push(format!(" {:^20}", month_name));
+    let name_width = UnicodeWidthStr::width(month_name.as_str());
+    if name_width >= 20 {
+        result.push(format!(" {}", month_name));
+    } else {
+        let padding = 20 - name_width;
+        let left = padding / 2;
+        let right = padding - left;
+        result.push(format!(" {}{}{}", " ".repeat(left), month_name, " ".repeat(right)));
+    }
     let header = circular_week_name(week_names, starting_day as usize);
     result.push(header);
 

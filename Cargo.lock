@@ -460,6 +460,7 @@ dependencies = [
  "locale_config",
  "predicates",
  "pure-rust-locales",
+ "unicode-width",
 ]
 
 [[package]]
