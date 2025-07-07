@@ -4,7 +4,7 @@ use ansi_term::{
     Color::{Black, Cyan, Purple, Red, Yellow, RGB},
     Style,
 };
-use chrono::Datelike;
+use chrono::{Datelike, Duration, NaiveDate};
 
 const REFORM_YEAR: u32 = 1099;
 
@@ -214,22 +214,18 @@ pub fn calendar(
         );
 
         if week_numbers {
-            let first_day_year =
-                days_by_date(1, month, year, months_memoized.clone(), year_memoized);
-            let offset = (first_day_year - starting_day) % WEEKDAYS;
+            let first_day = NaiveDate::from_ymd_opt(year as i32, month as u32, 1).unwrap();
+            let offset = (first_day.weekday().num_days_from_sunday() + 7 - starting_day) % 7;
+            let start_date = first_day - Duration::days(offset as i64);
+            let monday_offset = (7 + 1 - starting_day) % 7;
 
             for (line_idx, line) in printable.iter_mut().enumerate() {
                 if line_idx < 2 {
                     *line = format!("   {}", line);
                 } else if !line.trim().is_empty() {
-                    let week_index = (line_idx - 2) as u32;
-                    let first_day = if week_index == 0 {
-                        1
-                    } else {
-                        1 + (WEEKDAYS - offset) % WEEKDAYS + (week_index - 1) * WEEKDAYS
-                    };
-                    let day_of_year = months_memoized[month - 1] + first_day;
-                    let week_num = (day_of_year - 1) / WEEKDAYS + 1;
+                    let row_start = start_date + Duration::days(((line_idx - 2) as i64) * 7);
+                    let monday = row_start + Duration::days(monday_offset as i64);
+                    let week_num = monday.iso_week().week();
 
                     *line = format!(
                         "{}{}{}",
