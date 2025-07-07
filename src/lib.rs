@@ -191,60 +191,52 @@ pub fn calendar(
     starting_day: u32,
     week_numbers: bool,
 ) -> Vec<Vec<Vec<String>>> {
-    let mut rows: Vec<Vec<Vec<String>>> = vec![vec![vec![String::from("")]; COLUMN]; ROWS];
-    let mut row_counter = 0;
-    let mut column_counter = 0;
-    let mut week_counter = 1;
+    let mut rows: Vec<Vec<Vec<String>>> = vec![vec![Vec::new(); COLUMN]; ROWS];
     let (months_memoized, months) = get_days_accumulated_by_month(year);
     let year_memoized = days_by_year(year);
     let locale_info = locale::LocaleInfo::new(locale_str);
+    let month_names = locale_info.month_names();
+    let week_names = locale_info.week_day_names();
+    let mut week_counter = 1;
 
-    (1..MONTHS + 1).for_each(|month| {
-        rows[row_counter][column_counter] = month_printable(
+    for month in 1..=MONTHS {
+        let row_idx = (month - 1) / COLUMN;
+        let col_idx = (month - 1) % COLUMN;
+
+        let mut printable = month_printable(
             year,
             month,
             months[month],
             months_memoized.clone(),
             year_memoized,
             starting_day,
-            locale_info.month_names(),
-            locale_info.week_day_names(),
+            month_names.clone(),
+            week_names.clone(),
             week_numbers,
         );
 
         if week_numbers {
-            for line in 0..rows[row_counter][column_counter].len() {
-                if line < 2 {
-                    rows[row_counter][column_counter][line] = format!(
-                        "{}{}",
-                        "   ".to_string(),
-                        &rows[row_counter][column_counter][line]
-                    )
-                } else if !&rows[row_counter][column_counter][line].trim().is_empty() {
-                    rows[row_counter][column_counter][line] = format!(
+            for (line_idx, line) in printable.iter_mut().enumerate() {
+                if line_idx < 2 {
+                    *line = format!("   {}", line);
+                } else if !line.trim().is_empty() {
+                    *line = format!(
                         "{}{}{}",
-                        &" ".repeat(1 + (week_counter < 10) as usize),
-                        &week_counter.to_string(),
-                        &rows[row_counter][column_counter][line]
+                        " ".repeat(1 + (week_counter < 10) as usize),
+                        week_counter,
+                        line
                     );
 
-                    if rows[row_counter][column_counter][line]
-                        .chars()
-                        .last()
-                        .unwrap()
-                        != ' '
-                    {
+                    if line.chars().last().unwrap() != ' ' {
                         week_counter += 1;
                     }
                 }
             }
         }
 
-        column_counter = month % COLUMN;
-        if column_counter == 0 {
-            row_counter += 1;
-        }
-    });
+        rows[row_idx][col_idx] = printable;
+    }
+
     rows
 }
 
@@ -328,11 +320,8 @@ pub fn display(
         (now.year() as u32, now.month(), now.day())
     };
 
-    let t_pos = if today.0 == year {
-        Some(get_today_position(today.0, today.1, today.2, starting_day))
-    } else {
-        None
-    };
+    let t_pos =
+        (today.0 == year).then(|| get_today_position(today.0, today.1, today.2, starting_day));
 
     // print the year
     println!(
@@ -343,30 +332,21 @@ pub fn display(
 
     for (r, row) in rows.iter().enumerate() {
         for line in 0..8 {
-            for col in 0..3 {
+            for (c, month) in row.iter().enumerate() {
                 if line == 0 {
                     if monochromatic {
-                        print!("{} ", &row[col][line]);
+                        print!("{} ", &month[line]);
                     } else {
-                        print!("{} ", Cyan.bold().paint(&row[col][line]));
+                        print!("{} ", Cyan.bold().paint(&month[line]));
                     }
                 } else {
-                    // check if today is part of this line
-                    let (today_included, x) = {
-                        if let Some(p) = t_pos {
-                            // check for the correct row, col and line
-                            if p.0 == r as u32 && p.1 == col as u32 && p.3 + 2 == line as u32 {
-                                (true, p.2)
-                            } else {
-                                (false, 0)
-                            }
-                        } else {
-                            (false, 0)
-                        }
-                    };
-                    // print the colored line
+                    let (today_included, x) = t_pos
+                        .filter(|p| p.0 == r as u32 && p.1 == c as u32 && p.3 + 2 == line as u32)
+                        .map(|p| (true, p.2))
+                        .unwrap_or((false, 0));
+
                     print_row(
-                        &row[col][line],
+                        &month[line],
                         starting_day,
                         today_included,
                         x,
