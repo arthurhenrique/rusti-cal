@@ -1,8 +1,7 @@
 use argh::FromArgs;
-use chrono::prelude::*;
 use locale_config::Locale;
 
-use rusti_cal::display;
+use rusti_cal::{display, current_date};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// A command with positional arguments.
@@ -24,8 +23,7 @@ struct WithPositional {
 }
 
 fn default_year() -> u32 {
-    let now = Local::now();
-    let (_, year) = now.year_ce();
+    let (year, _m, _d) = current_date();
     year
 }
 

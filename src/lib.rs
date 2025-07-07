@@ -4,7 +4,7 @@ use ansi_term::{
     Color::{Black, Cyan, Purple, Red, Yellow, RGB},
     Style,
 };
-use chrono::{Datelike, Duration, NaiveDate};
+use libc::{self, time, tm};
 
 const REFORM_YEAR: u32 = 1099;
 
@@ -72,6 +72,74 @@ fn get_days_accumulated_by_month(year: u32) -> (Vec<u32>, Vec<u32>) {
         })
         .collect();
     (accum, days)
+}
+
+fn days_in_year(year: u32) -> u32 {
+    if is_leap_year(year) { 366 } else { 365 }
+}
+
+fn day_of_year(year: u32, month: u32, day: u32) -> u32 {
+    let (accum, _) = get_days_accumulated_by_month(year);
+    accum[month as usize - 1] + day
+}
+
+fn weekday(year: u32, month: u32, day: u32) -> u32 {
+    // 0 = Sunday, 1 = Monday, ...
+    let table = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    let mut y = year as i32;
+    let m = month as usize;
+    let d = day as i32;
+    if m < 3 {
+        y -= 1;
+    }
+    ((y + y / 4 - y / 100 + y / 400 + table[m - 1] as i32 + d) % 7) as u32
+}
+
+fn date_from_days(mut days: u32) -> (u32, u32, u32) {
+    let mut year = 1;
+    while days > days_in_year(year) {
+        days -= days_in_year(year);
+        year += 1;
+    }
+    let (accum, _) = get_days_accumulated_by_month(year);
+    let mut month = 1usize;
+    while month < accum.len() && days > accum[month] {
+        month += 1;
+    }
+    let day = days - accum[month - 1];
+    (year, month as u32, day)
+}
+
+fn iso_week_number(year: u32, month: u32, day: u32) -> u32 {
+    let ordinal = day_of_year(year, month, day);
+    let w = weekday(year, month, day);
+    let iso_w = (w + 6) % 7 + 1; // Monday = 1..7
+    let mut thursday = ordinal + 4 - iso_w;
+
+    if thursday < 1 {
+        thursday += days_in_year(year - 1);
+    } else if thursday > days_in_year(year) {
+        thursday -= days_in_year(year);
+    }
+
+    (thursday - 1) / 7 + 1
+}
+
+pub fn current_date() -> (u32, u32, u32) {
+    unsafe {
+        let mut t: libc::time_t = 0;
+        time(&mut t as *mut _);
+        let mut tm: tm = std::mem::zeroed();
+        #[cfg(unix)]
+        libc::localtime_r(&t, &mut tm);
+        #[cfg(windows)]
+        libc::localtime_s(&mut tm, &t);
+        (
+            (tm.tm_year + 1900) as u32,
+            (tm.tm_mon + 1) as u32,
+            tm.tm_mday as u32,
+        )
+    }
 }
 
 fn first_day_printable(day_year: u32, starting_day: u32) -> String {
@@ -214,18 +282,21 @@ pub fn calendar(
         );
 
         if week_numbers {
-            let first_day = NaiveDate::from_ymd_opt(year as i32, month as u32, 1).unwrap();
-            let offset = (first_day.weekday().num_days_from_sunday() + 7 - starting_day) % 7;
-            let start_date = first_day - Duration::days(offset as i64);
+            let first_weekday = weekday(year, month as u32, 1);
+            let offset = (first_weekday + 7 - starting_day) % 7;
+            let start_abs =
+                days_by_date(1, month, year, months_memoized.clone(), year_memoized) - offset;
 
             for (line_idx, line) in printable.iter_mut().enumerate() {
                 if line_idx < 2 {
                     *line = format!("   {}", line);
                 } else if !line.trim().is_empty() {
-                    let row_start = start_date + Duration::days(((line_idx - 2) as i64) * 7);
-                    let monday = row_start
-                        - Duration::days(row_start.weekday().num_days_from_monday() as i64);
-                    let week_num = monday.iso_week().week();
+                    let row_start_abs = start_abs + ((line_idx as u32 - 2) * 7);
+                    let (rs_y, rs_m, rs_d) = date_from_days(row_start_abs);
+                    let days_from_monday = (weekday(rs_y, rs_m, rs_d) + 6) % 7;
+                    let monday_abs = row_start_abs - days_from_monday;
+                    let (my, mm, md) = date_from_days(monday_abs);
+                    let week_num = iso_week_number(my, mm, md);
 
                     *line = format!(
                         "{}{}{}",
@@ -318,10 +389,7 @@ pub fn display(
 ) {
     let rows = calendar(year, locale_str, starting_day, week_numbers);
 
-    let today = {
-        let now = chrono::Local::now();
-        (now.year() as u32, now.month(), now.day())
-    };
+    let today = current_date();
 
     let t_pos =
         (today.0 == year).then(|| get_today_position(today.0, today.1, today.2, starting_day));
