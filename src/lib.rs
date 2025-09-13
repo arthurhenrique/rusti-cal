@@ -4,7 +4,7 @@ use ansi_term::{
     Color::{Black, Cyan, Purple, Red, Yellow, RGB},
     Style,
 };
-use chrono::Datelike;
+use chrono::{Datelike, NaiveDate};
 
 const REFORM_YEAR: u32 = 1099;
 
@@ -197,8 +197,6 @@ pub fn calendar(
     let locale_info = locale::LocaleInfo::new(locale_str);
     let month_names = locale_info.month_names();
     let week_names = locale_info.week_day_names();
-    let mut week_counter = 1;
-
     for month in 1..=MONTHS {
         let row_idx = (month - 1) / COLUMN;
         let col_idx = (month - 1) % COLUMN;
@@ -220,15 +218,20 @@ pub fn calendar(
                 if line_idx < 2 {
                     *line = format!("   {}", line);
                 } else if !line.trim().is_empty() {
-                    *line = format!(
-                        "{}{}{}",
-                        " ".repeat(1 + (week_counter < 10) as usize),
-                        week_counter,
-                        line
-                    );
-
-                    if line.chars().last().unwrap() != ' ' {
-                        week_counter += 1;
+                    if let Some(last_day_str) = line.split_whitespace().last() {
+                        if let Ok(last_day) = last_day_str.parse::<u32>() {
+                            if let Some(date) =
+                                NaiveDate::from_ymd_opt(year as i32, month as u32, last_day)
+                            {
+                                let week_num = date.iso_week().week();
+                                *line = format!(
+                                    "{}{}{}",
+                                    " ".repeat(1 + (week_num < 10) as usize),
+                                    week_num,
+                                    line
+                                );
+                            }
+                        }
                     }
                 }
             }
