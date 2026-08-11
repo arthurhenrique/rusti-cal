@@ -1,5 +1,6 @@
 mod locale;
 
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 use ansi_term::{
     Color::{Black, Cyan, Purple, Red, Yellow, RGB},
     Style,
@@ -134,7 +135,7 @@ fn body_printable(
 
     for line in 0..result.len() {
         let spaces =
-            21 - result[line].len() + (3 * (result[line].is_empty() && week_numbers) as usize);
+            21 - result[line].width() + (3 * (result[line].is_empty() && week_numbers) as usize);
         result[line] += &" ".repeat(spaces);
     }
     // all bodies should have at least 7 lines
@@ -166,7 +167,10 @@ fn month_printable(
         week_numbers,
     );
     let month_name = &month_names[month - 1];
-    result.push(format!(" {:^20}", month_name));
+    let m_w = month_name.width();
+    let pad_l = if m_w >= 20 { 0 } else { (20 - m_w) / 2 };
+    let pad_r = if m_w >= 20 { 0 } else { 20 - m_w - pad_l };
+    result.push(format!("{}{}{}", " ".repeat(pad_l), month_name, " ".repeat(pad_r)));
     let header = circular_week_name(week_names, starting_day as usize);
     result.push(header);
 
@@ -179,10 +183,16 @@ fn month_printable(
 fn circular_week_name(week_name: Vec<String>, idx: usize) -> String {
     let mut s = " ".to_string();
     for i in idx..(ROW_SIZE - 1 + idx) {
-        s.push_str(&format!("{} ", week_name[i % ROW_SIZE]));
+        let day = &week_name[i % ROW_SIZE];
+        let w = day.width();
+        let pad = if w >= 2 { 0 } else { 2 - w };
+        s.push_str(&format!("{}{} ", day, " ".repeat(pad)));
     }
-    s.push_str(week_name[(ROW_SIZE - 1 + idx) % ROW_SIZE].as_str());
-    s.to_string()
+    let day = &week_name[(ROW_SIZE - 1 + idx) % ROW_SIZE];
+    let w = day.width();
+    let pad = if w >= 2 { 0 } else { 2 - w };
+    s.push_str(&format!("{}{}", day, " ".repeat(pad)));
+    s
 }
 
 pub fn calendar(
@@ -251,41 +261,36 @@ fn print_row(
     monochromatic: bool,
     week_numbers: bool,
 ) {
-    let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7 + (week_numbers as i32);
-    let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7 + (week_numbers as i32);
+    let week_num_width = if week_numbers { 3 } else { 0 };
+    let pos_saturday = (((6 - starting_day as i32) % 7) + 7) % 7;
+    let pos_sunday = (((7 - starting_day as i32) % 7) + 7) % 7;
 
-    let char_saturday = (1 + 3 * pos_saturday) as usize;
-    let char_sunday = (1 + 3 * pos_sunday) as usize;
-    let char_today = (1 + 3 * (pos_today + week_numbers as u32)) as usize;
+    let sat_col = week_num_width + 3 * (pos_saturday as usize);
+    let sun_col = week_num_width + 3 * (pos_sunday as usize);
+    let today_col = week_num_width + 3 * (pos_today as usize);
 
-    let row = row
-        .split("")
-        .filter(|s| !s.is_empty())
-        .enumerate()
-        .map(|(i, s)| {
-            if monochromatic {
-                if today_included && (i == char_today || i == char_today + 1) {
-                    Black.on(RGB(200, 200, 200)).paint(s)
-                } else {
-                    ansi_term::Style::default().paint(s)
-                }
-            } else {
-                if today_included && (i == char_today || i == char_today + 1) {
-                    Black.on(RGB(200, 200, 200)).paint(s)
-                } else if i == char_saturday || i == char_saturday + 1 {
-                    Yellow.bold().paint(s)
-                } else if i == char_sunday || i == char_sunday + 1 {
-                    Red.bold().paint(s)
-                } else if week_numbers && i < 3 {
-                    Purple.bold().paint(s)
-                } else {
-                    ansi_term::Style::default().paint(s)
-                }
-            }
-        })
-        .collect::<Vec<ansi_term::ANSIString>>();
+    let mut col = 0;
+    let mut styled = Vec::new();
+    for c in row.chars() {
+        let w = c.width().unwrap_or(0);
+        let is_sat = col >= sat_col && col < sat_col + 3;
+        let is_sun = col >= sun_col && col < sun_col + 3;
+        let is_today = today_included && col >= today_col && col < today_col + 3;
+        let is_week_num = week_numbers && col < 3;
 
-    print!("{} ", ansi_term::ANSIStrings(&row));
+        let style = if monochromatic {
+            if is_today { Black.on(RGB(200, 200, 200)) } else { Style::default() }
+        } else {
+            if is_today { Black.on(RGB(200, 200, 200)) }
+            else if is_sat { Yellow.bold() }
+            else if is_sun { Red.bold() }
+            else if is_week_num { Purple.bold() }
+            else { Style::default() }
+        };
+        styled.push(style.paint(c.to_string()));
+        col += w;
+    }
+    print!("{} ", ansi_term::ANSIStrings(&styled));
 }
 
 /// calculates the positions of the given day within the overall grid
@@ -327,10 +332,14 @@ pub fn display(
         (today.0 == year).then(|| get_today_position(today.0, today.1, today.2, starting_day));
 
     // print the year
+    let year_str = year.to_string();
+    let y_w = year_str.width();
+    let pad_l = if y_w >= 63 { 0 } else { (63 - y_w) / 2 };
+    let pad_r = if y_w >= 63 { 0 } else { 63 - y_w - pad_l };
     println!(
         "{}{}",
         " ".repeat(6 * week_numbers as usize),
-        Style::new().bold().paint(format!(" {:^63}", year))
+        Style::new().bold().paint(format!("{}{}{}", " ".repeat(pad_l), year_str, " ".repeat(pad_r)))
     );
 
     for (r, row) in rows.iter().enumerate() {
