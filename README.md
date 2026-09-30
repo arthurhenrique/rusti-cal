@@ -26,6 +26,20 @@ To install simply run:
 $ rusti-cal <year>
 ```
 
+The year is optional and defaults to the current year. Explicit years must be positive
+32-bit integers; `--starting-day` must be between 0 and 6. Invalid arguments produce an
+error instead of rendering a calendar.
+
+## Development
+
+Requires Rust 1.87 or later.
+
+```sh
+cargo fmt -- --check
+cargo clippy --all-targets --locked -- -D warnings
+cargo test --locked
+```
+
 ## Hands On
 
 ![hands-on](./doc/rusti-cal.gif)
