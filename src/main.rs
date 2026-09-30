@@ -1,17 +1,17 @@
 use argh::FromArgs;
-use chrono::prelude::*;
+use chrono::{Datelike, Local};
 use locale_config::Locale;
 
 use rusti_cal::display;
 
 #[derive(FromArgs, PartialEq, Debug)]
-/// A command with positional arguments.
-struct WithPositional {
-    #[argh(positional, default = "default_year()")]
+/// Display a localized calendar for a year.
+struct Args {
+    #[argh(positional, default = "default_year()", from_str_fn(parse_year))]
     year: u32,
 
-    /// an optional starting_day which is "0" by default
-    #[argh(option, default = "0")]
+    /// first weekday, from Sunday (0) through Saturday (6)
+    #[argh(option, default = "0", from_str_fn(parse_starting_day))]
     starting_day: u32,
 
     /// an optional flag for enabling colored output
@@ -34,12 +34,28 @@ fn locale() -> String {
     locale
         .tags()
         .next()
-        .map(|(_, x)| x.to_string().replace("-", "_"))
+        .map(|(_, x)| x.to_string().replace('-', "_"))
         .unwrap_or_default()
 }
 
+fn parse_year(value: &str) -> Result<u32, String> {
+    value
+        .parse()
+        .ok()
+        .filter(|year| (1..=9999).contains(year))
+        .ok_or_else(|| "year must be between 1 and 9999".to_owned())
+}
+
+fn parse_starting_day(value: &str) -> Result<u32, String> {
+    value
+        .parse()
+        .ok()
+        .filter(|day| *day < 7)
+        .ok_or_else(|| "starting day must be between 0 (Sunday) and 6 (Saturday)".to_owned())
+}
+
 fn main() {
-    let arg = argh::from_env::<WithPositional>();
+    let arg = argh::from_env::<Args>();
     display(
         arg.year,
         &locale(),

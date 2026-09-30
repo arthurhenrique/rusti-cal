@@ -1,5 +1,4 @@
 use pure_rust_locales::Locale;
-use std::convert::TryInto;
 
 #[derive(Debug, PartialEq)]
 pub struct LocaleInfo {
@@ -7,12 +6,10 @@ pub struct LocaleInfo {
 }
 
 impl LocaleInfo {
-    pub fn new(locale_str: &str) -> LocaleInfo {
-        let locale: Locale = match locale_str.try_into() {
-            Ok(l) => l,
-            _ => "POSIX".try_into().unwrap(),
-        };
-        LocaleInfo { locale }
+    pub fn new(locale_str: &str) -> Self {
+        Self {
+            locale: locale_str.try_into().unwrap_or(Locale::POSIX),
+        }
     }
 
     pub fn month_names(&self) -> Vec<String> {
@@ -33,99 +30,99 @@ impl LocaleInfo {
     }
 }
 
-fn to_titlecase(str: &str) -> String {
-    str.chars()
-        .enumerate()
-        .map(|(pos, c)| {
-            if pos == 0 {
-                c.to_uppercase().to_string()
-            } else {
-                c.to_string()
-            }
-        })
-        .collect()
+fn to_titlecase(text: &str) -> String {
+    let mut characters = text.chars();
+    match characters.next() {
+        Some(first) => first.to_uppercase().chain(characters).collect(),
+        None => String::new(),
+    }
 }
 
-#[test]
-fn parse_invalid_locale() {
-    assert_eq!(LocaleInfo::new(" ").locale, Locale::POSIX);
-    assert_eq!(LocaleInfo::new("bogus").locale, Locale::POSIX);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn parse_default_locale() {
-    let res = LocaleInfo::new("");
-    assert_eq!(res.locale, Locale::POSIX);
+    #[test]
+    fn parse_invalid_locale() {
+        assert_eq!(LocaleInfo::new(" ").locale, Locale::POSIX);
+        assert_eq!(LocaleInfo::new("bogus").locale, Locale::POSIX);
+    }
 
-    let months = res.month_names();
-    assert_eq!(months.len(), 12);
-    assert_eq!(months[0], "January");
-    assert_eq!(months[1], "February");
-    assert_eq!(months[2], "March");
-    assert_eq!(months[3], "April");
-    assert_eq!(months[4], "May");
-    assert_eq!(months[5], "June");
-    assert_eq!(months[6], "July");
-    assert_eq!(months[7], "August");
-    assert_eq!(months[8], "September");
-    assert_eq!(months[9], "October");
-    assert_eq!(months[10], "November");
-    assert_eq!(months[11], "December");
+    #[test]
+    fn parse_default_locale() {
+        let res = LocaleInfo::new("");
+        assert_eq!(res.locale, Locale::POSIX);
 
-    let days = res.week_day_names();
-    assert_eq!(days, ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
-}
+        let months = res.month_names();
+        assert_eq!(months.len(), 12);
+        assert_eq!(months[0], "January");
+        assert_eq!(months[1], "February");
+        assert_eq!(months[2], "March");
+        assert_eq!(months[3], "April");
+        assert_eq!(months[4], "May");
+        assert_eq!(months[5], "June");
+        assert_eq!(months[6], "July");
+        assert_eq!(months[7], "August");
+        assert_eq!(months[8], "September");
+        assert_eq!(months[9], "October");
+        assert_eq!(months[10], "November");
+        assert_eq!(months[11], "December");
 
-#[test]
-fn parse_english_locale() {
-    let res = LocaleInfo::new("en_AU");
-    assert_eq!(res.locale, Locale::en_AU);
+        let days = res.week_day_names();
+        assert_eq!(days, ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
+    }
 
-    let months = res.month_names();
-    assert_eq!(months.len(), 12);
-    assert_eq!(months[0], "January");
-    assert_eq!(months[1], "February");
-    assert_eq!(months[2], "March");
-    assert_eq!(months[3], "April");
-    assert_eq!(months[4], "May");
-    assert_eq!(months[5], "June");
-    assert_eq!(months[6], "July");
-    assert_eq!(months[7], "August");
-    assert_eq!(months[8], "September");
-    assert_eq!(months[9], "October");
-    assert_eq!(months[10], "November");
-    assert_eq!(months[11], "December");
+    #[test]
+    fn parse_english_locale() {
+        let res = LocaleInfo::new("en_AU");
+        assert_eq!(res.locale, Locale::en_AU);
 
-    let days = res.week_day_names();
-    assert_eq!(days, ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
-}
+        let months = res.month_names();
+        assert_eq!(months.len(), 12);
+        assert_eq!(months[0], "January");
+        assert_eq!(months[1], "February");
+        assert_eq!(months[2], "March");
+        assert_eq!(months[3], "April");
+        assert_eq!(months[4], "May");
+        assert_eq!(months[5], "June");
+        assert_eq!(months[6], "July");
+        assert_eq!(months[7], "August");
+        assert_eq!(months[8], "September");
+        assert_eq!(months[9], "October");
+        assert_eq!(months[10], "November");
+        assert_eq!(months[11], "December");
 
-#[test]
-fn parse_non_english_locale() {
-    let res = LocaleInfo::new("hu_HU");
-    assert_eq!(res.locale, Locale::hu_HU);
+        let days = res.week_day_names();
+        assert_eq!(days, ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
+    }
 
-    let months = res.month_names();
-    assert_eq!(months.len(), 12);
-    assert_eq!(months[0], "Január");
-    assert_eq!(months[1], "Február");
-    assert_eq!(months[2], "Március");
-    assert_eq!(months[3], "Április");
-    assert_eq!(months[4], "Május");
-    assert_eq!(months[5], "Június");
-    assert_eq!(months[6], "Július");
-    assert_eq!(months[7], "Augusztus");
-    assert_eq!(months[8], "Szeptember");
-    assert_eq!(months[9], "Október");
-    assert_eq!(months[10], "November");
-    assert_eq!(months[11], "December");
+    #[test]
+    fn parse_non_english_locale() {
+        let res = LocaleInfo::new("hu_HU");
+        assert_eq!(res.locale, Locale::hu_HU);
 
-    let days = res.week_day_names();
-    assert_eq!(days, ["V ", "H ", "K ", "Sz", "Cs", "P ", "Sz"]);
-}
+        let months = res.month_names();
+        assert_eq!(months.len(), 12);
+        assert_eq!(months[0], "Január");
+        assert_eq!(months[1], "Február");
+        assert_eq!(months[2], "Március");
+        assert_eq!(months[3], "Április");
+        assert_eq!(months[4], "Május");
+        assert_eq!(months[5], "Június");
+        assert_eq!(months[6], "Július");
+        assert_eq!(months[7], "Augusztus");
+        assert_eq!(months[8], "Szeptember");
+        assert_eq!(months[9], "Október");
+        assert_eq!(months[10], "November");
+        assert_eq!(months[11], "December");
 
-#[test]
-fn test_titlecase() {
-    assert_eq!(to_titlecase("January"), "January");
-    assert_eq!(to_titlecase("április"), "Április");
+        let days = res.week_day_names();
+        assert_eq!(days, ["V ", "H ", "K ", "Sz", "Cs", "P ", "Sz"]);
+    }
+
+    #[test]
+    fn test_titlecase() {
+        assert_eq!(to_titlecase("January"), "January");
+        assert_eq!(to_titlecase("április"), "Április");
+    }
 }

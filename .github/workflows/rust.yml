@@ -1,6 +1,6 @@
 name: Rust
 
-on: push
+on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,16 +12,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
     - name: Check formatting
       run: cargo fmt -- --check
+    - name: Clippy
+      run: cargo clippy --all-targets --locked -- -D warnings
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --locked --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --locked --verbose
     - name: Install performance bin
       run: |
         wget https://github.com/sharkdp/hyperfine/releases/download/v1.15.0/hyperfine_1.15.0_amd64.deb
         sudo dpkg -i hyperfine_1.15.0_amd64.deb
-        cargo build --release
+        cargo build --release --locked
     - name: Run performance
       run:  hyperfine --warmup 5 -N --runs 1000 ./target/release/rusti-cal
