@@ -26,8 +26,8 @@ To install simply run:
 $ rusti-cal <year>
 ```
 
-The year is optional and defaults to the current year. Explicit years must be between
-1 and 9999; `--starting-day` must be between 0 and 6. Invalid arguments produce an
+The year is optional and defaults to the current year. Explicit years must be positive
+32-bit integers; `--starting-day` must be between 0 and 6. Invalid arguments produce an
 error instead of rendering a calendar.
 
 ## Development

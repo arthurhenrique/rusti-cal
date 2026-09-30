@@ -42,8 +42,8 @@ fn parse_year(value: &str) -> Result<u32, String> {
     value
         .parse()
         .ok()
-        .filter(|year| (1..=9999).contains(year))
-        .ok_or_else(|| "year must be between 1 and 9999".to_owned())
+        .filter(|year| *year > 0)
+        .ok_or_else(|| "year must be a positive 32-bit integer".to_owned())
 }
 
 fn parse_starting_day(value: &str) -> Result<u32, String> {
